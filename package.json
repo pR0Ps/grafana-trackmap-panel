@@ -1,0 +1,43 @@
+{
+  "name": "grafana-trackmap-panel",
+  "version": "1.0.0",
+  "description": "A plugin for Grafana that visualizes GPS points as a line on an interactive map.",
+  "main": "src/module.js",
+  "scripts": {
+    "build": "grunt"
+  },
+  "author": {
+    "name": "Carey Metcalfe",
+    "url": "https://cmetcalfe.ca"
+  },
+  "keywords": [
+    "trackmap",
+    "track",
+    "map",
+    "gps",
+    "latitude",
+    "longitude",
+    "grafana",
+    "plugin",
+    "panel"
+  ],
+  "license": "APLv2",
+  "devDependencies": {
+    "babel": "~6.5.1",
+    "babel-plugin-transform-es2015-modules-systemjs": "^6.5.0",
+    "babel-preset-es2015": "^6.5.0",
+    "grunt": "~0.4.5",
+    "grunt-babel": "~6.0.0",
+    "grunt-contrib-clean": "~0.6.0",
+    "grunt-contrib-copy": "~0.8.2",
+    "grunt-contrib-uglify": "~0.11.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-execute": "~0.2.2",
+    "grunt-systemjs-builder": "^0.2.5",
+    "load-grunt-tasks": "~3.2.0"
+  },
+  "dependencies": {
+    "moment": "^2.12.0",
+    "leaflet": "^1.0.3"
+  }
+}
