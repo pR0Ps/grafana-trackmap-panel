@@ -1,6 +1,6 @@
 {
   "name": "grafana-trackmap-panel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A plugin for Grafana that visualizes GPS points as a line on an interactive map.",
   "main": "src/module.js",
   "scripts": {

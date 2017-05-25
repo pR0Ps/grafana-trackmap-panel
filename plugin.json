@@ -33,7 +33,7 @@
       {"name": "Zoom in by selecting a range of points", "path": "src/img/topo-boxselect.png"},
       {"name": "Chose what map to display the data on", "path": "src/img/satellite-picker.png"}
     ],
-    "version": "1.0.0",
+    "version": "1.0.1",
     "updated": "2017-05-24"
   },
 
