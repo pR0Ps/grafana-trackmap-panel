@@ -1,7 +1,7 @@
 import L from './leaflet/leaflet.js';
 import moment from 'moment';
 
-import {appEvents} from 'app/core/core';
+import appEvents from 'app/core/app_events';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
