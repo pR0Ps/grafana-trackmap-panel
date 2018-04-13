@@ -7,9 +7,17 @@ import {MetricsPanelCtrl} from 'app/plugins/sdk';
 import './leaflet/leaflet.css!';
 import './module.css!';
 
+const panelDefaults = {
+  maxDataPoints: 500,
+  autoZoom: true,
+  lineColor: 'red',
+  pointColor: 'royalblue',
+}
+
 export class TrackMapCtrl extends MetricsPanelCtrl {
   constructor($scope, $injector) {
     super($scope, $injector);
+    _.defaults(this.panel, panelDefaults);
 
     this.timeSrv = $injector.get('timeSrv');
     this.coords = [];
@@ -17,15 +25,6 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.polyline = null;
     this.hoverMarker = null;
     this.hoverTarget = null;
-
-    // Plugin config
-    this.panel.maxDataPoints = 500;
-    if (this.panel.lineColor == null) {
-      this.panel.lineColor = 'red';
-    }
-    if (this.panel.pointColor == null) {
-      this.panel.pointColor = 'royalblue';
-    }
 
     // Panel events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
@@ -206,7 +205,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       }
     ).addTo(this.leafMap);
 
-    this.leafMap.fitBounds(this.polyline.getBounds());
+    this.zoomToFit();
+  }
+
+  zoomToFit(){
+    if (this.panel.autoZoom){
+      this.leafMap.fitBounds(this.polyline.getBounds());
+    }
   }
 
   refreshColors() {
