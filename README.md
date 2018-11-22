@@ -41,3 +41,9 @@ accordingly.
 ```
 SELECT median("latitude"), median("longitude") FROM "location" WHERE $timeFilter GROUP BY time($interval)
 ```
+
+It's also possible to use MySQL/MariaDB as a data source by using 2 queries along the lines of:
+```
+A: SELECT "latitude" as value, $__time(timestamp) FROM "location" WHERE $__timeFilter(timestamp) ORDER BY timestamp ASC
+B: SELECT "longitude" as value, $__time(timestamp) FROM "location" WHERE $__timeFilter(timestamp) ORDER BY timestamp ASC
+```
