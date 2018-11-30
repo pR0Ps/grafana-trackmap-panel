@@ -29,6 +29,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Panel events
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
+    this.events.on('panel-size-changed', this.onPanelSizeChanged.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));
 
     // Global events
@@ -102,6 +103,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         fillColor: 'none',
         color: 'none'
       });
+    }
+  }
+
+  onPanelSizeChanged() {
+    if (this.leafMap) {
+      this.leafMap.invalidateSize();
     }
   }
 
