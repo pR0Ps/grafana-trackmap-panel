@@ -20,8 +20,8 @@ Installation
 ------------
 To use the latest version of this plugin, clone it into Grafana's plugin directory (you can find
 this path in Grafana's logs when it starts up) and run `git checkout releases`. You should now be
-able to select the "TrackMap" panel when adding a new panel to a Grafana dashboard. To use a
-specific version run something like `git checkout v2.0.0`.
+able to select the "TrackMap" panel when adding a new panel to a Grafana dashboard. To use an
+earlier version use git to checkout an earlier commit on the `releases` branch.
 
 To use an unreleased version of the plugin or do development, you will need to manually build it
 from source.
