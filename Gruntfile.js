@@ -16,11 +16,6 @@ module.exports = (grunt) => {
         src: ['**/*', '!**/*.js', '!**/*.scss'],
         dest: 'dist'
       },
-      pluginDef: {
-        expand: true,
-        src: ['README.md'],
-        dest: 'dist'
-      },
       leaflet: {
         cwd: 'node_modules/leaflet/dist/',
         expand: true,

@@ -18,18 +18,23 @@ Screenshots
 
 Installation
 ------------
-To use this plugin, clone it into Grafana's plugin directory (you can find this path in Grafana's
-logs when it starts up), and build it.
+To use the latest version of this plugin, clone it into Grafana's plugin directory (you can find
+this path in Grafana's logs when it starts up) and run `git checkout releases`. You should now be
+able to select the "TrackMap" panel when adding a new panel to a Grafana dashboard. To use a
+specific version run something like `git checkout v2.0.0`.
 
-To build, [install npm](https://www.npmjs.com/get-npm) and run the following commands in the
-plugin's directory:
+To use an unreleased version of the plugin or do development, you will need to manually build it
+from source.
+
+To build, [install npm](https://www.npmjs.com/get-npm), check out the master branch (or the commit
+you want to build) and run the following commands in the plugin's directory:
 ```
 npm install
 npm run build
 ```
 
-After building, you should now be able to select the "TrackMap" panel when adding a new panel to a
-Grafana dashboard.
+This will build the currently checked out source into the `dist` folder for Grafana to use.
+
 
 Configuration
 -------------

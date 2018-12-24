@@ -5,7 +5,7 @@ import appEvents from 'app/core/app_events';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
-import './module.css!';
+import './partials/module.css!';
 
 const panelDefaults = {
   maxDataPoints: 500,
@@ -38,7 +38,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   onInitEditMode() {
-    this.addEditorTab('Options', 'public/plugins/grafana-trackmap-panel/editor.html', 2);
+    this.addEditorTab('Options', 'public/plugins/pr0ps-trackmap-panel/partials/options.html', 2);
   }
 
   onPanelTeardown() {
@@ -258,4 +258,4 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 }
 
-TrackMapCtrl.templateUrl = 'module.html';
+TrackMapCtrl.templateUrl = 'partials/module.html';

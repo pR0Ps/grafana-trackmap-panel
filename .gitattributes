@@ -1,0 +1,3 @@
+# Treat lock files as binaries
+package-lock.json binary
+yarn.lock binary
