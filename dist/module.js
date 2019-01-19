@@ -1,6 +1,4 @@
-'use strict';
-
-System.register(['./trackmap_ctrl'], function (_export, _context) {
+System.register(["./trackmap_ctrl"], function (_export, _context) {
   "use strict";
 
   var TrackMapCtrl;
@@ -9,7 +7,7 @@ System.register(['./trackmap_ctrl'], function (_export, _context) {
       TrackMapCtrl = _trackmap_ctrl.TrackMapCtrl;
     }],
     execute: function () {
-      _export('PanelCtrl', TrackMapCtrl);
+      _export("PanelCtrl", TrackMapCtrl);
     }
   };
 });

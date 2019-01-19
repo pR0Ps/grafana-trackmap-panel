@@ -1,39 +1,25 @@
-'use strict';
-
-System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/plugins/sdk', './leaflet/leaflet.css!', './module.css!'], function (_export, _context) {
+System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/plugins/sdk", "./leaflet/leaflet.css!", "./partials/module.css!"], function (_export, _context) {
   "use strict";
 
-  var L, moment, appEvents, MetricsPanelCtrl, _createClass, panelDefaults, TrackMapCtrl;
+  var L, moment, appEvents, MetricsPanelCtrl, panelDefaults, TrackMapCtrl;
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
+  function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-  function _possibleConstructorReturn(self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  }
+  function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
+  function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  }
+  function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+  function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+  function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+  function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
   return {
     setters: [function (_leafletLeafletJs) {
@@ -44,26 +30,8 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
       appEvents = _appCoreApp_events.default;
     }, function (_appPluginsSdk) {
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
-    }, function (_leafletLeafletCss) {}, function (_moduleCss) {}],
+    }, function (_leafletLeafletCss) {}, function (_partialsModuleCss) {}],
     execute: function () {
-      _createClass = function () {
-        function defineProperties(target, props) {
-          for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];
-            descriptor.enumerable = descriptor.enumerable || false;
-            descriptor.configurable = true;
-            if ("value" in descriptor) descriptor.writable = true;
-            Object.defineProperty(target, descriptor.key, descriptor);
-          }
-        }
-
-        return function (Constructor, protoProps, staticProps) {
-          if (protoProps) defineProperties(Constructor.prototype, protoProps);
-          if (staticProps) defineProperties(Constructor, staticProps);
-          return Constructor;
-        };
-      }();
-
       panelDefaults = {
         maxDataPoints: 500,
         autoZoom: true,
@@ -71,13 +39,17 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
         pointColor: 'royalblue'
       };
 
-      _export('TrackMapCtrl', TrackMapCtrl = function (_MetricsPanelCtrl) {
+      _export("TrackMapCtrl", TrackMapCtrl =
+      /*#__PURE__*/
+      function (_MetricsPanelCtrl) {
         _inherits(TrackMapCtrl, _MetricsPanelCtrl);
 
         function TrackMapCtrl($scope, $injector) {
+          var _this;
+
           _classCallCheck(this, TrackMapCtrl);
 
-          var _this = _possibleConstructorReturn(this, (TrackMapCtrl.__proto__ || Object.getPrototypeOf(TrackMapCtrl)).call(this, $scope, $injector));
+          _this = _possibleConstructorReturn(this, _getPrototypeOf(TrackMapCtrl).call(this, $scope, $injector));
 
           _.defaults(_this.panel, panelDefaults);
 
@@ -86,43 +58,47 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
           _this.leafMap = null;
           _this.polyline = null;
           _this.hoverMarker = null;
-          _this.hoverTarget = null;
+          _this.hoverTarget = null; // Panel events
 
-          // Panel events
-          _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
-          _this.events.on('panel-teardown', _this.onPanelTeardown.bind(_this));
-          _this.events.on('data-received', _this.onDataReceived.bind(_this));
+          _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_assertThisInitialized(_this))));
 
-          // Global events
-          appEvents.on('graph-hover', _this.onPanelHover.bind(_this));
-          appEvents.on('graph-hover-clear', _this.onPanelClear.bind(_this));
+          _this.events.on('panel-teardown', _this.onPanelTeardown.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+
+          _this.events.on('panel-size-changed', _this.onPanelSizeChanged.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+
+          _this.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_assertThisInitialized(_this)))); // Global events
+
+
+          appEvents.on('graph-hover', _this.onPanelHover.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+          appEvents.on('graph-hover-clear', _this.onPanelClear.bind(_assertThisInitialized(_assertThisInitialized(_this))));
           return _this;
         }
 
         _createClass(TrackMapCtrl, [{
-          key: 'onInitEditMode',
+          key: "onInitEditMode",
           value: function onInitEditMode() {
-            this.addEditorTab('Options', 'public/plugins/grafana-trackmap-panel/editor.html', 2);
+            this.addEditorTab('Options', 'public/plugins/pr0ps-trackmap-panel/partials/options.html', 2);
           }
         }, {
-          key: 'onPanelTeardown',
+          key: "onPanelTeardown",
           value: function onPanelTeardown() {
             this.$timeout.cancel(this.nextTickPromise);
           }
         }, {
-          key: 'onPanelHover',
+          key: "onPanelHover",
           value: function onPanelHover(evt) {
             if (this.coords.length === 0) {
               return;
-            }
+            } // check if we are already showing the correct hoverMarker
 
-            // check if we are already showing the correct hoverMarker
+
             var target = Math.floor(evt.pos.x);
+
             if (this.hoverTarget && this.hoverTarget === target) {
               return;
-            }
+            } // check for initial show of the marker
 
-            // check for initial show of the marker
+
             if (this.hoverTarget == null) {
               this.hoverMarker.bringToFront().setStyle({
                 fillColor: this.panel.pointColor,
@@ -130,17 +106,18 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
               });
             }
 
-            this.hoverTarget = target;
-
-            // Find the currently selected time and move the hoverMarker to it
+            this.hoverTarget = target; // Find the currently selected time and move the hoverMarker to it
             // Note that an exact match isn't always going to work due to rounding so
             // we clean that up later (still more efficient)
+
             var min = 0;
             var max = this.coords.length - 1;
             var idx = null;
             var exact = false;
+
             while (min <= max) {
               idx = Math.floor((max + min) / 2);
+
               if (this.coords[idx].timestamp === this.hoverTarget) {
                 exact = true;
                 break;
@@ -149,19 +126,21 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
               } else {
                 max = idx - 1;
               }
-            }
+            } // Correct the case where we are +1 index off
 
-            // Correct the case where we are +1 index off
+
             if (!exact && idx > 0 && this.coords[idx].timestamp > this.hoverTarget) {
               idx--;
             }
+
             this.hoverMarker.setLatLng(this.coords[idx].position);
           }
         }, {
-          key: 'onPanelClear',
+          key: "onPanelClear",
           value: function onPanelClear(evt) {
             // clear the highlighted circle
             this.hoverTarget = null;
+
             if (this.hoverMarker) {
               this.hoverMarker.setStyle({
                 fillColor: 'none',
@@ -170,30 +149,38 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
             }
           }
         }, {
-          key: 'setupMap',
+          key: "onPanelSizeChanged",
+          value: function onPanelSizeChanged() {
+            if (this.leafMap) {
+              this.leafMap.invalidateSize();
+            }
+          }
+        }, {
+          key: "setupMap",
           value: function setupMap() {
             // Create the map or get it back in a clean state if it already exists
             if (this.leafMap) {
               if (this.polyline) {
                 this.polyline.removeFrom(this.leafMap);
               }
+
               this.onPanelClear();
               return;
-            }
+            } // Create the map
 
-            // Create the map
+
             this.leafMap = L.map('trackmap-' + this.panel.id, {
               scrollWheelZoom: false,
               zoomSnap: 0.5,
               zoomDelta: 1
-            });
+            }); // Define layers and add them to the control widget
 
-            // Define layers and add them to the control widget
             L.control.layers({
               'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 maxZoom: 19
-              }).addTo(this.leafMap), // Add default layer to map
+              }).addTo(this.leafMap),
+              // Add default layer to map
               'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
                 attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
                 maxZoom: 17
@@ -207,23 +194,21 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
                   maxZoom: 20
                 })
               })
-            }).addTo(this.leafMap);
+            }).addTo(this.leafMap); // Dummy hovermarker
 
-            // Dummy hovermarker
             this.hoverMarker = L.circleMarker(L.latLng(0, 0), {
               color: 'none',
               fillColor: 'none',
               fillOpacity: 1,
               weight: 2,
               radius: 7
-            }).addTo(this.leafMap);
+            }).addTo(this.leafMap); // Events
 
-            // Events
             this.leafMap.on('baselayerchange', this.mapBaseLayerChange.bind(this));
             this.leafMap.on('boxzoomend', this.mapZoomToBox.bind(this));
           }
         }, {
-          key: 'mapBaseLayerChange',
+          key: "mapBaseLayerChange",
           value: function mapBaseLayerChange(e) {
             // If a tileLayer has a 'forcedOverlay' attribute, always enable/disable it
             // along with the layer
@@ -231,7 +216,9 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
               this.leafMap.forcedOverlay.removeFrom(this.leafMap);
               this.leafMap.forcedOverlay = null;
             }
+
             var overlay = e.layer.options.forcedOverlay;
+
             if (overlay) {
               overlay.addTo(this.leafMap);
               overlay.setZIndex(e.layer.options.zIndex + 1);
@@ -239,7 +226,7 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
             }
           }
         }, {
-          key: 'mapZoomToBox',
+          key: "mapZoomToBox",
           value: function mapZoomToBox(e) {
             // Find time bounds of selected coordinates
             var bounds = this.coords.reduce(function (t, c) {
@@ -247,10 +234,13 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
                 t.from = Math.min(t.from, c.timestamp);
                 t.to = Math.max(t.to, c.timestamp);
               }
-              return t;
-            }, { from: Infinity, to: -Infinity });
 
-            // Set the global time range
+              return t;
+            }, {
+              from: Infinity,
+              to: -Infinity
+            }); // Set the global time range
+
             if (isFinite(bounds.from) && isFinite(bounds.to)) {
               // KLUDGE: Create moment objects here to avoid a TypeError that
               // occurs when Grafana processes normal numbers
@@ -259,9 +249,10 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
                 to: moment.utc(bounds.to)
               });
             }
-          }
+          } // Add the circles and polyline to the map
+
         }, {
-          key: 'addDataToMap',
+          key: "addDataToMap",
           value: function addDataToMap() {
             this.polyline = L.polyline(this.coords.map(function (x) {
               return x.position;
@@ -269,18 +260,17 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
               color: this.panel.lineColor,
               weight: 3
             }).addTo(this.leafMap);
-
             this.zoomToFit();
           }
         }, {
-          key: 'zoomToFit',
+          key: "zoomToFit",
           value: function zoomToFit() {
             if (this.panel.autoZoom) {
               this.leafMap.fitBounds(this.polyline.getBounds());
             }
           }
         }, {
-          key: 'refreshColors',
+          key: "refreshColors",
           value: function refreshColors() {
             if (this.polyline) {
               this.polyline.setStyle({
@@ -289,7 +279,7 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
             }
           }
         }, {
-          key: 'onDataReceived',
+          key: "onDataReceived",
           value: function onDataReceived(data) {
             this.setupMap();
 
@@ -297,13 +287,14 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
               // No data or incorrect data, show a world map and abort
               this.leafMap.setView([0, 0], 1);
               return;
-            }
-
-            // Asumption is that there are an equal number of properly matched timestamps
+            } // Asumption is that there are an equal number of properly matched timestamps
             // TODO: proper joining by timestamp?
+
+
             this.coords.length = 0;
             var lats = data[0].datapoints;
             var lons = data[1].datapoints;
+
             for (var i = 0; i < lats.length; i++) {
               if (lats[i][0] == null || lons[i][0] == null || lats[i][1] !== lats[i][1]) {
                 continue;
@@ -314,6 +305,7 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
                 timestamp: lats[i][1]
               });
             }
+
             this.addDataToMap();
           }
         }]);
@@ -321,9 +313,7 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/p
         return TrackMapCtrl;
       }(MetricsPanelCtrl));
 
-      _export('TrackMapCtrl', TrackMapCtrl);
-
-      TrackMapCtrl.templateUrl = 'module.html';
+      TrackMapCtrl.templateUrl = 'partials/module.html';
     }
   };
 });

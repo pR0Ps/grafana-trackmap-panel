@@ -1,7 +1,7 @@
 {
   "type": "panel",
   "name": "TrackMap",
-  "id": "grafana-trackmap-panel",
+  "id": "pr0ps-trackmap-panel",
   "info": {
     "description": "A plugin for Grafana that visualizes GPS points as a line on an interactive map.",
     "author": {
@@ -33,12 +33,12 @@
       {"name": "Zoom in by selecting a range of points", "path": "img/topo-boxselect.png"},
       {"name": "Chose what map to display the data on", "path": "img/satellite-picker.png"}
     ],
-    "version": "1.1.0",
-    "updated": "2018-04-13"
+    "version": "2.0.0",
+    "updated": "2018-12-24"
   },
 
   "dependencies": {
-    "grafanaVersion": "4.x.x",
+    "grafanaVersion": "5.x.x",
     "plugins": [ ]
   }
 }
