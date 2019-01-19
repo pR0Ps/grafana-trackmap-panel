@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['./leaflet/leaflet.js', 'moment', 'app/core/core', 'app/plugins/sdk', './leaflet/leaflet.css!', './module.css!'], function (_export, _context) {
+System.register(['./leaflet/leaflet.js', 'moment', 'app/core/app_events', 'app/plugins/sdk', './leaflet/leaflet.css!', './module.css!'], function (_export, _context) {
   "use strict";
 
-  var L, moment, appEvents, MetricsPanelCtrl, _createClass, TrackMapCtrl;
+  var L, moment, appEvents, MetricsPanelCtrl, _createClass, panelDefaults, TrackMapCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -40,8 +40,8 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/core', 'app/plugins
       L = _leafletLeafletJs.default;
     }, function (_moment) {
       moment = _moment.default;
-    }, function (_appCoreCore) {
-      appEvents = _appCoreCore.appEvents;
+    }, function (_appCoreApp_events) {
+      appEvents = _appCoreApp_events.default;
     }, function (_appPluginsSdk) {
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
     }, function (_leafletLeafletCss) {}, function (_moduleCss) {}],
@@ -64,6 +64,13 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/core', 'app/plugins
         };
       }();
 
+      panelDefaults = {
+        maxDataPoints: 500,
+        autoZoom: true,
+        lineColor: 'red',
+        pointColor: 'royalblue'
+      };
+
       _export('TrackMapCtrl', TrackMapCtrl = function (_MetricsPanelCtrl) {
         _inherits(TrackMapCtrl, _MetricsPanelCtrl);
 
@@ -72,21 +79,14 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/core', 'app/plugins
 
           var _this = _possibleConstructorReturn(this, (TrackMapCtrl.__proto__ || Object.getPrototypeOf(TrackMapCtrl)).call(this, $scope, $injector));
 
+          _.defaults(_this.panel, panelDefaults);
+
           _this.timeSrv = $injector.get('timeSrv');
           _this.coords = [];
           _this.leafMap = null;
           _this.polyline = null;
           _this.hoverMarker = null;
           _this.hoverTarget = null;
-
-          // Plugin config
-          _this.panel.maxDataPoints = 500;
-          if (_this.panel.lineColor == null) {
-            _this.panel.lineColor = 'red';
-          }
-          if (_this.panel.pointColor == null) {
-            _this.panel.pointColor = 'royalblue';
-          }
 
           // Panel events
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
@@ -270,7 +270,14 @@ System.register(['./leaflet/leaflet.js', 'moment', 'app/core/core', 'app/plugins
               weight: 3
             }).addTo(this.leafMap);
 
-            this.leafMap.fitBounds(this.polyline.getBounds());
+            this.zoomToFit();
+          }
+        }, {
+          key: 'zoomToFit',
+          value: function zoomToFit() {
+            if (this.panel.autoZoom) {
+              this.leafMap.fitBounds(this.polyline.getBounds());
+            }
           }
         }, {
           key: 'refreshColors',

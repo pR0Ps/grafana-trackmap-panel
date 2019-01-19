@@ -20,8 +20,8 @@
       "panel"
     ],
     "logos": {
-      "small": "src/img/logo.svg",
-      "large": "src/img/logo.svg"
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
     },
     "links": [
       {"name": "Project site", "url": "https://github.com/pR0Ps/grafana-trackmap-panel"},
@@ -29,12 +29,12 @@
       {"name": "Project license", "url": "https://github.com/pR0Ps/grafana-trackmap-panel/blob/master/LICENSE"}
     ],
     "screenshots": [
-      {"name": "Show current selection as a dot on the map", "path": "src/img/topo-crosshair.png"},
-      {"name": "Zoom in by selecting a range of points", "path": "src/img/topo-boxselect.png"},
-      {"name": "Chose what map to display the data on", "path": "src/img/satellite-picker.png"}
+      {"name": "Show current selection as a dot on the map", "path": "img/topo-crosshair.png"},
+      {"name": "Zoom in by selecting a range of points", "path": "img/topo-boxselect.png"},
+      {"name": "Chose what map to display the data on", "path": "img/satellite-picker.png"}
     ],
-    "version": "1.0.1",
-    "updated": "2017-05-24"
+    "version": "1.1.0",
+    "updated": "2018-04-13"
   },
 
   "dependencies": {

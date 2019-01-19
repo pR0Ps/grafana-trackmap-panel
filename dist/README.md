@@ -6,8 +6,8 @@ Features
 --------
 - Places a dot on the map at the current time as you mouse over other panels.
 - Zoom to a range of points by drawing a box by shift-clicking and dragging.
-- Multiple map backgrounds: [OpenStreetMap](http://www.openstreetmap.org/),
-  [OpenTopoMap](https://opentopomap.org/), and [Satellite imagery](http://www.esri.com/).
+- Multiple map backgrounds: [OpenStreetMap](https://www.openstreetmap.org/),
+  [OpenTopoMap](https://opentopomap.org/), and [Satellite imagery](https://www.esri.com/).
 - Track and dot colors can be customized in the options tab.
 
 Screenshots
@@ -33,7 +33,7 @@ Grafana dashboard.
 
 Configuration
 -------------
-The plugin requires latitude and longitude measurements provided as floats in two seperate fields.
+The plugin requires latitude and longitude measurements provided as floats in two separate fields.
 
 The following setup has been tested using InfluxDB as a data source in the case where `latitude` and
 `longitude` are stored in the `location` table. You will have customize the query for your setup
