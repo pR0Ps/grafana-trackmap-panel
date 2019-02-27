@@ -14,13 +14,23 @@ module.exports = (grunt) => {
         cwd: 'src',
         expand: true,
         src: ['**/*', '!**/*.js', '!**/*.scss'],
-        dest: 'dist'
+        dest: 'dist/'
+      },
+      readme: {
+        src: ['README.md'],
+        dest: 'dist/',
+        options: {
+          // Remove the 'src/' prefix from any paths so relative links still work
+          process: function (content, srcpath) {
+            return content.replace(/src\//g, '');
+          },
+        },
       },
       leaflet: {
         cwd: 'node_modules/leaflet/dist/',
         expand: true,
         src: ['leaflet.js', 'leaflet.css', 'images'],
-        dest: 'dist/leaflet'
+        dest: 'dist/leaflet/'
       },
       leaflet_img: {
         cwd: 'node_modules/leaflet/dist/images',
