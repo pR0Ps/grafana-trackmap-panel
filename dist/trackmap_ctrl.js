@@ -15,11 +15,11 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
 
   function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+  function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
   function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
   function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-  function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
   return {
     setters: [function (_leafletLeafletJs) {
@@ -60,17 +60,17 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
           _this.hoverMarker = null;
           _this.hoverTarget = null; // Panel events
 
-          _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+          _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_this)));
 
-          _this.events.on('panel-teardown', _this.onPanelTeardown.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+          _this.events.on('panel-teardown', _this.onPanelTeardown.bind(_assertThisInitialized(_this)));
 
-          _this.events.on('panel-size-changed', _this.onPanelSizeChanged.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+          _this.events.on('panel-size-changed', _this.onPanelSizeChanged.bind(_assertThisInitialized(_this)));
 
-          _this.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_assertThisInitialized(_this)))); // Global events
+          _this.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_this))); // Global events
 
 
-          appEvents.on('graph-hover', _this.onPanelHover.bind(_assertThisInitialized(_assertThisInitialized(_this))));
-          appEvents.on('graph-hover-clear', _this.onPanelClear.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+          appEvents.on('graph-hover', _this.onPanelHover.bind(_assertThisInitialized(_this)));
+          appEvents.on('graph-hover-clear', _this.onPanelClear.bind(_assertThisInitialized(_this)));
           return _this;
         }
 
