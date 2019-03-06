@@ -29,9 +29,9 @@
       {"name": "Project license", "url": "https://github.com/pR0Ps/grafana-trackmap-panel/blob/master/LICENSE"}
     ],
     "screenshots": [
-      {"name": "Show current selection as a dot on the map", "path": "img/topo-crosshair.png"},
-      {"name": "Zoom in by selecting a range of points", "path": "img/topo-boxselect.png"},
-      {"name": "Chose what map to display the data on", "path": "img/satellite-picker.png"}
+      {"name": "Show current selection as a dot on the map", "path": "img/topo-crosshair.jpg"},
+      {"name": "Zoom in by selecting a range of points", "path": "img/topo-boxselect.jpg"},
+      {"name": "Chose what map to display the data on", "path": "img/satellite-picker.jpg"}
     ],
     "version": "2.0.1",
     "updated": "2019-02-27"

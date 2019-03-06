@@ -1,5 +1,5 @@
-grafana-trackmap-panel
-======================
+TrackMap Panel for Grafana
+==========================
 A panel for [Grafana](https://grafana.com/) that visualizes GPS points as a line on an interactive map.
 
 Features
@@ -12,9 +12,9 @@ Features
 
 Screenshots
 -----------
-![Show current selection as a dot on the map](src/img/topo-crosshair.png)
-![Zoom in by selecting a range of points](src/img/topo-boxselect.png)
-![Chose what map to display the data on](src/img/satellite-picker.png)
+![Show current selection as a dot on the map](src/img/topo-crosshair.jpg)
+![Zoom in by selecting a range of points](src/img/topo-boxselect.jpg)
+![Chose what map to display the data on](src/img/satellite-picker.jpg)
 
 Installation
 ------------

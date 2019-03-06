@@ -20,9 +20,9 @@ module.exports = (grunt) => {
         src: ['README.md'],
         dest: 'dist/',
         options: {
-          // Remove the 'src/' prefix from any paths so relative links still work
+          // Rewrite the image links to pull from the plugin's image storage when served by Grafana
           process: function (content, srcpath) {
-            return content.replace(/src\//g, '');
+            return content.replace(/src\/img\//g, '/public/plugins/pr0ps-trackmap-panel/img/');
           },
         },
       },
