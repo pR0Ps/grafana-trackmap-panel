@@ -39,6 +39,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
     this.events.on('panel-size-changed', this.onPanelSizeChanged.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));
+    this.events.on('data-snapshot-load', this.onDataSnapshotLoad.bind(this));
 
     // Global events
     appEvents.on('graph-hover', this.onPanelHover.bind(this));
@@ -274,6 +275,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       });
     }
     this.addDataToMap();
+  }
+
+  onDataSnapshotLoad(snapshotData) {
+    log("onSnapshotLoad");
+    this.onDataReceived(snapshotData);
   }
 }
 
