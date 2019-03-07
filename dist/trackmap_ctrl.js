@@ -21,6 +21,10 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
 
   function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+  function log(msg) {// uncomment for debugging
+    //console.log(msg);
+  }
+
   return {
     setters: [function (_leafletLeafletJs) {
       L = _leafletLeafletJs.default;
@@ -50,6 +54,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
           _classCallCheck(this, TrackMapCtrl);
 
           _this = _possibleConstructorReturn(this, _getPrototypeOf(TrackMapCtrl).call(this, $scope, $injector));
+          log("constructor");
 
           _.defaults(_this.panel, panelDefaults);
 
@@ -58,7 +63,12 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
           _this.leafMap = null;
           _this.polyline = null;
           _this.hoverMarker = null;
-          _this.hoverTarget = null; // Panel events
+          _this.hoverTarget = null;
+          _this.setSizePromise = null; // Panel events
+
+          _this.events.on('panel-initialized', _this.onInitialized.bind(_assertThisInitialized(_this)));
+
+          _this.events.on('view-mode-changed', _this.onViewModeChanged.bind(_assertThisInitialized(_this)));
 
           _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_assertThisInitialized(_this)));
 
@@ -66,7 +76,9 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
 
           _this.events.on('panel-size-changed', _this.onPanelSizeChanged.bind(_assertThisInitialized(_this)));
 
-          _this.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_this))); // Global events
+          _this.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_this)));
+
+          _this.events.on('data-snapshot-load', _this.onDataSnapshotLoad.bind(_assertThisInitialized(_this))); // Global events
 
 
           appEvents.on('graph-hover', _this.onPanelHover.bind(_assertThisInitialized(_this)));
@@ -75,18 +87,28 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
         }
 
         _createClass(TrackMapCtrl, [{
+          key: "onInitialized",
+          value: function onInitialized() {
+            log("onInitialized");
+            this.render();
+          }
+        }, {
           key: "onInitEditMode",
           value: function onInitEditMode() {
+            log("onInitEditMode");
             this.addEditorTab('Options', 'public/plugins/pr0ps-trackmap-panel/partials/options.html', 2);
           }
         }, {
           key: "onPanelTeardown",
           value: function onPanelTeardown() {
-            this.$timeout.cancel(this.nextTickPromise);
+            log("onPanelTeardown");
+            this.$timeout.cancel(this.setSizePromise);
           }
         }, {
           key: "onPanelHover",
           value: function onPanelHover(evt) {
+            log("onPanelHover");
+
             if (this.coords.length === 0) {
               return;
             } // check if we are already showing the correct hoverMarker
@@ -138,7 +160,8 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
         }, {
           key: "onPanelClear",
           value: function onPanelClear(evt) {
-            // clear the highlighted circle
+            log("onPanelClear"); // clear the highlighted circle
+
             this.hoverTarget = null;
 
             if (this.hoverMarker) {
@@ -149,16 +172,34 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
             }
           }
         }, {
+          key: "onViewModeChanged",
+          value: function onViewModeChanged() {
+            log("onViewModeChanged"); // KLUDGE: When the view mode is changed, panel resize events are not
+            //         emitted even if the panel was resized. Work around this by telling
+            //         the panel it's been resized whenever the view mode changes.
+
+            this.onPanelSizeChanged();
+          }
+        }, {
           key: "onPanelSizeChanged",
           value: function onPanelSizeChanged() {
-            if (this.leafMap) {
-              this.leafMap.invalidateSize();
-            }
+            log("onPanelSizeChanged"); // KLUDGE: This event is fired too soon - we need to delay doing the actual
+            //         size invalidation until after the panel has actually been resized.
+
+            this.$timeout.cancel(this.setSizePromise);
+            var map = this.leafMap;
+            this.setSizePromise = this.$timeout(function () {
+              if (map) {
+                log("Invalidating map size");
+                map.invalidateSize(true);
+              }
+            }, 500);
           }
         }, {
           key: "setupMap",
           value: function setupMap() {
-            // Create the map or get it back in a clean state if it already exists
+            log("setupMap"); // Create the map or get it back in a clean state if it already exists
+
             if (this.leafMap) {
               if (this.polyline) {
                 this.polyline.removeFrom(this.leafMap);
@@ -228,7 +269,8 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
         }, {
           key: "mapZoomToBox",
           value: function mapZoomToBox(e) {
-            // Find time bounds of selected coordinates
+            log("mapZoomToBox"); // Find time bounds of selected coordinates
+
             var bounds = this.coords.reduce(function (t, c) {
               if (e.boxZoomBounds.contains(c.position)) {
                 t.from = Math.min(t.from, c.timestamp);
@@ -243,7 +285,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
 
             if (isFinite(bounds.from) && isFinite(bounds.to)) {
               // KLUDGE: Create moment objects here to avoid a TypeError that
-              // occurs when Grafana processes normal numbers
+              //         occurs when Grafana processes normal numbers
               this.timeSrv.setTime({
                 from: moment.utc(bounds.from),
                 to: moment.utc(bounds.to)
@@ -254,6 +296,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
         }, {
           key: "addDataToMap",
           value: function addDataToMap() {
+            log("addDataToMap");
             this.polyline = L.polyline(this.coords.map(function (x) {
               return x.position;
             }, this), {
@@ -265,22 +308,31 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
         }, {
           key: "zoomToFit",
           value: function zoomToFit() {
+            log("zoomToFit");
+
             if (this.panel.autoZoom) {
               this.leafMap.fitBounds(this.polyline.getBounds());
             }
+
+            this.render();
           }
         }, {
           key: "refreshColors",
           value: function refreshColors() {
+            log("refreshColors");
+
             if (this.polyline) {
               this.polyline.setStyle({
                 color: this.panel.lineColor
               });
             }
+
+            this.render();
           }
         }, {
           key: "onDataReceived",
           value: function onDataReceived(data) {
+            log("onDataReceived");
             this.setupMap();
 
             if (data.length === 0 || data.length !== 2) {
@@ -307,6 +359,12 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
             }
 
             this.addDataToMap();
+          }
+        }, {
+          key: "onDataSnapshotLoad",
+          value: function onDataSnapshotLoad(snapshotData) {
+            log("onSnapshotLoad");
+            this.onDataReceived(snapshotData);
           }
         }]);
 
