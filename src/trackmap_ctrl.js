@@ -33,9 +33,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.polyline = null;
     this.hoverMarker = null;
     this.hoverTarget = null;
+    this.setSizePromise = null;
 
     // Panel events
     this.events.on('panel-initialized', this.onInitialized.bind(this));
+    this.events.on('view-mode-changed', this.onViewModeChanged.bind(this));
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
     this.events.on('panel-size-changed', this.onPanelSizeChanged.bind(this));
@@ -59,7 +61,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   onPanelTeardown() {
     log("onPanelTeardown");
-    this.$timeout.cancel(this.nextTickPromise);
+    this.$timeout.cancel(this.setSizePromise);
   }
 
   onPanelHover(evt) {
@@ -125,11 +127,26 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
+  onViewModeChanged(){
+    log("onViewModeChanged");
+    // KLUDGE: When the view mode is changed, panel resize events are not
+    //         emitted even if the panel was resized. Work around this by telling
+    //         the panel it's been resized whenever the view mode changes.
+    this.onPanelSizeChanged();
+  }
+
   onPanelSizeChanged() {
     log("onPanelSizeChanged");
-    if (this.leafMap) {
-      this.leafMap.invalidateSize();
-    }
+    // KLUDGE: This event is fired too soon - we need to delay doing the actual
+    //         size invalidation until after the panel has actually been resized.
+    this.$timeout.cancel(this.setSizePromise);
+    let map = this.leafMap;
+    this.setSizePromise = this.$timeout(function(){
+      if (map) {
+        log("Invalidating map size");
+        map.invalidateSize(true);
+      }}, 500
+    );
   }
 
   setupMap() {
