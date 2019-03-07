@@ -14,9 +14,17 @@ const panelDefaults = {
   pointColor: 'royalblue',
 }
 
+function log(msg) {
+  // uncomment for debugging
+  //console.log(msg);
+}
+
 export class TrackMapCtrl extends MetricsPanelCtrl {
   constructor($scope, $injector) {
     super($scope, $injector);
+
+    log("constructor");
+
     _.defaults(this.panel, panelDefaults);
 
     this.timeSrv = $injector.get('timeSrv');
@@ -38,14 +46,17 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   onInitEditMode() {
+    log("onInitEditMode");
     this.addEditorTab('Options', 'public/plugins/pr0ps-trackmap-panel/partials/options.html', 2);
   }
 
   onPanelTeardown() {
+    log("onPanelTeardown");
     this.$timeout.cancel(this.nextTickPromise);
   }
 
   onPanelHover(evt) {
+    log("onPanelHover");
     if (this.coords.length === 0) {
       return;
     }
@@ -96,6 +107,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   onPanelClear(evt) {
+    log("onPanelClear");
     // clear the highlighted circle
     this.hoverTarget = null;
     if (this.hoverMarker) {
@@ -107,12 +119,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   onPanelSizeChanged() {
+    log("onPanelSizeChanged");
     if (this.leafMap) {
       this.leafMap.invalidateSize();
     }
   }
 
   setupMap() {
+    log("setupMap");
     // Create the map or get it back in a clean state if it already exists
     if (this.leafMap) {
       if (this.polyline) {
@@ -180,6 +194,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   mapZoomToBox(e) {
+    log("mapZoomToBox");
     // Find time bounds of selected coordinates
     const bounds = this.coords.reduce(
       function(t, c) {
@@ -205,6 +220,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   // Add the circles and polyline to the map
   addDataToMap() {
+    log("addDataToMap");
     this.polyline = L.polyline(
       this.coords.map(x => x.position, this), {
         color: this.panel.lineColor,
@@ -216,12 +232,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   zoomToFit(){
+    log("zoomToFit");
     if (this.panel.autoZoom){
       this.leafMap.fitBounds(this.polyline.getBounds());
     }
   }
 
   refreshColors() {
+    log("refreshColors");
     if (this.polyline) {
       this.polyline.setStyle({
         color: this.panel.lineColor
@@ -230,6 +248,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   onDataReceived(data) {
+    log("onDataReceived");
     this.setupMap();
 
     if (data.length === 0 || data.length !== 2) {
