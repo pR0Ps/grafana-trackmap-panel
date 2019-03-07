@@ -35,6 +35,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.hoverTarget = null;
 
     // Panel events
+    this.events.on('panel-initialized', this.onInitialized.bind(this));
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
     this.events.on('panel-size-changed', this.onPanelSizeChanged.bind(this));
@@ -44,6 +45,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Global events
     appEvents.on('graph-hover', this.onPanelHover.bind(this));
     appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
+  }
+
+  onInitialized(){
+    log("onInitialized");
+    this.render();
   }
 
   onInitEditMode() {
@@ -211,7 +217,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Set the global time range
     if (isFinite(bounds.from) && isFinite(bounds.to)) {
       // KLUDGE: Create moment objects here to avoid a TypeError that
-      // occurs when Grafana processes normal numbers
+      //         occurs when Grafana processes normal numbers
       this.timeSrv.setTime({
         from: moment.utc(bounds.from),
         to: moment.utc(bounds.to)
@@ -237,6 +243,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     if (this.panel.autoZoom){
       this.leafMap.fitBounds(this.polyline.getBounds());
     }
+    this.render();
   }
 
   refreshColors() {
@@ -246,6 +253,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         color: this.panel.lineColor
       });
     }
+    this.render();
   }
 
   onDataReceived(data) {
