@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
       .panel {
@@ -8,7 +8,7 @@
       .shade {
         opacity: 0.2;
       }
-      #mark,
+      .mark,
       .path {
         stroke: black;
         stroke-linecap: round;
@@ -21,10 +21,6 @@
         stroke-dashoffset: 33;
       }
     </style>
-    <g id="mark">
-      <line x1="-17" x2="17" y1="-17" y2="17" />
-      <line x1="-17" x2="17" y1="17" y2="-17" />
-    </g>
   </defs>
   <polygon class="panel" points="130 49  11 81  11 451 130 419 130 49"/>
   <polygon class="panel" points="130 49 250 81 250 451 130 419 130 49"/>
@@ -33,6 +29,8 @@
   <polygon class="panel" points="370 49 489 81 489 451 370 419 370 49"/>
   <polygon class="shade" points="370 49 489 81 489 451 370 419 370 49"/>
   <path class="path" d="M83,156 H285 a45,45,0,0,1,45,45 a45,45,0,0,1-45,45 H219 a42,42,0,0,0-42,42 a42,42,0,0,0,42,42 H428"/>
-  <use xlink:href="#mark" x="66" y="156"/>
-  <use xlink:href="#mark" x="428" y="330"/>
+  <line class="mark" x1="49" x2="83" y1="139" y2="173" />
+  <line class="mark" x1="49" x2="83" y1="173" y2="139" />
+  <line class="mark" x1="411" x2="445" y1="313" y2="347" />
+  <line class="mark" x1="411" x2="445" y1="347" y2="313" />
 </svg>
