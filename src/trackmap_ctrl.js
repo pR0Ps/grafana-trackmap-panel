@@ -78,11 +78,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // check for initial show of the marker
     if (this.hoverTarget == null){
-      this.hoverMarker.bringToFront()
-                      .setStyle({
-                        fillColor: this.panel.pointColor,
-                        color: 'white'
-                      });
+      this.hoverMarker.addTo(this.leafMap);
     }
 
     this.hoverTarget = target;
@@ -120,10 +116,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // clear the highlighted circle
     this.hoverTarget = null;
     if (this.hoverMarker) {
-      this.hoverMarker.setStyle({
-        fillColor: 'none',
-        color: 'none'
-      });
+      this.hoverMarker.removeFrom(this.leafMap);
     }
   }
 
@@ -188,14 +181,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       })
     }).addTo(this.leafMap);
 
-    // Dummy hovermarker
+    // Hover marker
     this.hoverMarker = L.circleMarker(L.latLng(0, 0), {
-      color: 'none',
-      fillColor: 'none',
+      color: 'white',
+      fillColor: this.panel.pointColor,
       fillOpacity: 1,
       weight: 2,
       radius: 7
-    }).addTo(this.leafMap);
+    });
 
     // Events
     this.leafMap.on('baselayerchange', this.mapBaseLayerChange.bind(this));
@@ -268,6 +261,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     if (this.polyline) {
       this.polyline.setStyle({
         color: this.panel.lineColor
+      });
+    }
+    if (this.hoverMarker){
+      this.hoverMarker.setStyle({
+        fillColor: this.panel.pointColor,
       });
     }
     this.render();
