@@ -10,6 +10,7 @@ import './partials/module.css!';
 const panelDefaults = {
   maxDataPoints: 500,
   autoZoom: true,
+  scrollWheelZoom: false,
   lineColor: 'red',
   pointColor: 'royalblue',
 }
@@ -142,6 +143,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     );
   }
 
+  resetupMap() {
+    if (this.polyline) {
+      this.polyline.removeFrom(this.leafMap);
+    }
+    this.onPanelClear();
+    this.leafMap.remove();
+    this.leafMap = null;
+    this.setupMap();
+  }
+
   setupMap() {
     log("setupMap");
     // Create the map or get it back in a clean state if it already exists
@@ -155,7 +166,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // Create the map
     this.leafMap = L.map('trackmap-' + this.panel.id, {
-      scrollWheelZoom: false,
+      scrollWheelZoom: this.panel.scrollWheelZoom,
       zoomSnap: 0.5,
       zoomDelta: 1,
     });
