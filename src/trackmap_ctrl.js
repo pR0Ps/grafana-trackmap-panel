@@ -143,14 +143,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     );
   }
 
-  resetupMap() {
-    if (this.polyline) {
-      this.polyline.removeFrom(this.leafMap);
+  applyScrollZoom() {
+    let enabled = this.leafMap.scrollWheelZoom.enabled();
+    if (enabled != this.panel.scrollWheelZoom){
+      if (enabled){
+        this.leafMap.scrollWheelZoom.disable();
+      }
+      else{
+        this.leafMap.scrollWheelZoom.enable();
+      }
     }
-    this.onPanelClear();
-    this.leafMap.remove();
-    this.leafMap = null;
-    this.setupMap();
   }
 
   setupMap() {
