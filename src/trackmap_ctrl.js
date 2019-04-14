@@ -250,7 +250,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   zoomToFit(){
     log("zoomToFit");
-    if (this.panel.autoZoom){
+    if (this.panel.autoZoom && this.polyline){
       this.leafMap.fitBounds(this.polyline.getBounds());
     }
     this.render();
