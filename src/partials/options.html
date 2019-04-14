@@ -11,6 +11,13 @@
                     checked="ctrl.panel.autoZoom" on-change="ctrl.zoomToFit()"/>
     <gf-form-switch class="gf-form" label="Zoom with scroll wheel" label-class="width-11"
                     checked="ctrl.panel.scrollWheelZoom" on-change="ctrl.applyScrollZoom()"/>
+    <div class="gf-form">
+      <label class="gf-form-label width-9">Default layer</label>
+      <div class="gf-form-select-wrapper max-width-10">
+        <select class="gf-form-input" ng-model="ctrl.panel.defaultLayer" ng-options="key as key for (key, value) in ctrl.layers"
+                ng-change="ctrl.applyDefaultLayer()"></select>
+      </div>
+    </div>
   </div>
   <div class="section gf-form-group">
     <h5 class="section-heading">Colors</h5>
