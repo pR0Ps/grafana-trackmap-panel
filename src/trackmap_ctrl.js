@@ -3,6 +3,7 @@ import moment from 'moment';
 
 import appEvents from 'app/core/app_events';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
+import TableModel from 'app/core/table_model';
 
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
@@ -132,6 +133,17 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       idx--;
     }
     this.hoverMarker.setLatLng(this.coords[idx].position);
+
+    // Show/hide tooltip and set text
+    let tooltip = this.coords[idx].tooltip;
+    let validTooltip = !(tooltip == "" || tooltip == undefined || tooltip == null)
+    if (validTooltip != this.hoverMarker.isTooltipOpen()){
+      this.hoverMarker.toggleTooltip();
+    }
+    if (validTooltip){
+      // TODO: non-hardcoded title
+      this.hoverMarker.setTooltipContent("<h1>Altitude</h1><p>" + String(tooltip) + "</p>");
+    }
   }
 
   onPanelClear(evt) {
@@ -223,6 +235,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       radius: 7
     });
 
+    // Tooltip
+    this.hoverMarker.bindTooltip(L.tooltip({
+      direction: 'top',
+      permanent: true,
+      opacity: 1,
+    }));
+
     // Events
     this.leafMap.on('baselayerchange', this.mapBaseLayerChange.bind(this));
     this.leafMap.on('boxzoomend', this.mapZoomToBox.bind(this));
@@ -308,28 +327,105 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("onDataReceived");
     this.setupMap();
 
-    if (data.length === 0 || data.length !== 2) {
+    log(data);
+
+    // Reset displayed coordinates
+    this.coords.length = 0;
+
+    // Check for the simple mode - a lat+lon time series
+    if (data.length === 2) {
+      let time_series = true;
+      for (let i = 0; i < data.length; i++) {
+        if (time_series && !data[i].hasOwnProperty('datapoints')){
+          time_series = false;
+        }
+      }
+      if (time_series){
+        // We have time series data - convert it to table format
+        // Assumption is that there are an equal number of properly matched timestamps
+        log("Converting data from time series to table");
+        let table = new TableModel();
+        table.addColumn({ text: 'Time', type: 'time' });
+        table.addColumn({ text: 'latitude' });
+        table.addColumn({ text: 'longitude' });
+        const lats = data[0].datapoints;
+        const lons = data[1].datapoints;
+        for (let i = 0; i < Math.min(lats.length, lons.length); i++) {
+          // Timestamps must be the same
+          if (lats[i][1] !== lons[i][1]) {
+            continue;
+          }
+          // timestamp, latitude, longitude
+          table.addRow([lats[i][1], lats[i][0], lons[i][0]]);
+        }
+        // Replace received data with table-ized version
+        data = [table];
+      }
+    }
+
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].type != "table"){
+        // At this point the data should've been converted to a table
+        // If it wasn't, something invalid was given
+        console.log("ERROR: Data must be provided in table format or as two time series");
+        continue;
+      }
+
+      // Allow addressing the row data by column name
+      let type_map = {}
+      let time_idx = null
+      for (let j = 0; j < data[i].columns.length; j++){
+        if (data[i].columns[j].type === "time"){
+          time_idx = j
+        }
+        else {
+          type_map[data[i].columns[j].text] = j
+        }
+      }
+      log(type_map);
+
+      if (time_idx == null || !(type_map.hasOwnProperty('latitude') && type_map.hasOwnProperty('longitude'))) {
+        console.log("ERROR: Table must have the columns 'longitude' and 'latitude' indexed by time");
+        continue;
+      }
+
+      // Add coords to the map
+      for (let j = 0; j < data[i].rows.length; j++){
+        // TODO: Handle more value types (tooltips, line color, etc)
+        // TODO: Add everything to the coords array. Use settings to define the tooltip contents
+        // TODO: Add time bar below the map to enable scrolling and show time?
+        const lat = data[i].rows[j][type_map['latitude']]
+        const lon = data[i].rows[j][type_map['longitude']]
+        const tooltip = data[i].rows[j][type_map['tooltip']] //// remove
+        const timestamp = data[i].rows[j][time_idx]
+        if (lat === null || lon == null){
+          continue;
+        }
+        let point = {
+          position: L.latLng(lat, lon),
+          timestamp: timestamp,
+        }
+        if (tooltip != undefined){
+          point.tooltip = tooltip;
+        }
+        this.coords.push(point);
+      }
+
+      log(this.coords)
+
+      // TODO: Handle more than 1 line
+      if (i + 1 < data.length){
+        console.log("Only a single line is currently supported")
+      }
+      break;
+    }
+
+    if (this.coords.length === 0){
       // No data or incorrect data, show a world map and abort
       this.leafMap.setView([0, 0], 1);
       return;
     }
 
-    // Asumption is that there are an equal number of properly matched timestamps
-    // TODO: proper joining by timestamp?
-    this.coords.length = 0;
-    const lats = data[0].datapoints;
-    const lons = data[1].datapoints;
-    for (let i = 0; i < lats.length; i++) {
-      if (lats[i][0] == null || lons[i][0] == null ||
-          lats[i][1] !== lons[i][1]) {
-        continue;
-      }
-
-      this.coords.push({
-        position: L.latLng(lats[i][0], lons[i][0]),
-        timestamp: lats[i][1]
-      });
-    }
     this.addDataToMap();
   }
 
