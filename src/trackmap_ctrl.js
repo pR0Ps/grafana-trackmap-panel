@@ -178,10 +178,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   applyDefaultLayer() {
-    this.leafMap.eachLayer((layer) => {
-      layer.removeFrom(this.leafMap);
-    });
-    this.layers[this.panel.defaultLayer].addTo(this.leafMap);
+    let hadMap = Boolean(this.leafMap);
+    this.setupMap();
+    // Only need to re-add layers if the map previously existed
+    if (hadMap){
+      this.leafMap.eachLayer((layer) => {
+        layer.removeFrom(this.leafMap);
+      });
+      this.layers[this.panel.defaultLayer].addTo(this.leafMap);
+    }
+    this.addDataToMap();
   }
 
   setupMap() {
