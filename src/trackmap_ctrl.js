@@ -11,6 +11,7 @@ const panelDefaults = {
   maxDataPoints: 500,
   autoZoom: true,
   scrollWheelZoom: false,
+  defaultLayer: 'OpenStreetMap',
   lineColor: 'red',
   pointColor: 'royalblue',
 }
@@ -27,6 +28,27 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("constructor");
 
     _.defaults(this.panel, panelDefaults);
+
+    // Save layers globally in order to use them in options
+    this.layers = {
+      'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+      }),
+      'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        maxZoom: 17
+      }),
+      'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Imagery &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        // This map doesn't have labels so we force a label-only layer on top of it
+        forcedOverlay: L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {
+          attribution: 'Labels by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
+        })
+      })
+    };
 
     this.timeSrv = $injector.get('timeSrv');
     this.coords = [];
@@ -155,6 +177,19 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
+  applyDefaultLayer() {
+    let hadMap = Boolean(this.leafMap);
+    this.setupMap();
+    // Only need to re-add layers if the map previously existed
+    if (hadMap){
+      this.leafMap.eachLayer((layer) => {
+        layer.removeFrom(this.leafMap);
+      });
+      this.layers[this.panel.defaultLayer].addTo(this.leafMap);
+    }
+    this.addDataToMap();
+  }
+
   setupMap() {
     log("setupMap");
     // Create the map or get it back in a clean state if it already exists
@@ -173,26 +208,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       zoomDelta: 1,
     });
 
-    // Define layers and add them to the control widget
-    L.control.layers({
-      'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
-      }).addTo(this.leafMap), // Add default layer to map
-      'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-        maxZoom: 17
-      }),
-      'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Imagery &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-        // This map doesn't have labels so we force a label-only layer on top of it
-        forcedOverlay: L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {
-          attribution: 'Labels by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          subdomains: 'abcd',
-          maxZoom: 20,
-        })
-      })
-    }).addTo(this.leafMap);
+    // Add layers to the control widget
+    L.control.layers(this.layers).addTo(this.leafMap);
+
+    // Add default layer to map
+    this.layers[this.panel.defaultLayer].addTo(this.leafMap);
 
     // Hover marker
     this.hoverMarker = L.circleMarker(L.latLng(0, 0), {
