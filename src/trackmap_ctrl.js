@@ -321,7 +321,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     const lons = data[1].datapoints;
     for (let i = 0; i < lats.length; i++) {
       if (lats[i][0] == null || lons[i][0] == null ||
-          lats[i][1] !== lats[i][1]) {
+          lats[i][1] !== lons[i][1]) {
         continue;
       }
 
