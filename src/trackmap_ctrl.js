@@ -144,7 +144,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       let lon = document.createElement('li')
       if (this.leafMap.hasLayer(this.time_stamp_tool_tip)) {
         // TODO: fix timestamp to correspond to grafana
-        time.innerHTML += `Timestamp : ${new Date(this.coords[idx].timestamp).toLocaleString('en-GB', { timeZone: 'UTC' })}`
+        time.innerHTML = `Timestamp : ${new Date(this.coords[idx].timestamp).toLocaleString('en-GB', { timeZone: 'UTC' })}`
         info.appendChild(time)
       }
       if (this.leafMap.hasLayer(this.coordinate_tool_tip)) {
