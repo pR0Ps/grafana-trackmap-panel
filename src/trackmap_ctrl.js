@@ -133,21 +133,23 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
     this.hoverMarker.setLatLng(this.coords[idx].position);
 
+    // Add time and location tooltip
     if (this.leafMap.hasLayer(this.time_stamp_tool_tip) || this.leafMap.hasLayer(this.coordinate_tool_tip)) {
       // TODO: Remove bullet points from list
       let info = document.createElement('ul')
+      info.className = "tooltip-info"
 
       let time = document.createElement('li')
       let lat = document.createElement('li')
       let lon = document.createElement('li')
       if (this.leafMap.hasLayer(this.time_stamp_tool_tip)) {
         // TODO: fix timestamp to correspond to grafana
-        time.innerHTML += `Timestamp : ${new Date(this.coords[idx].timestamp).toISOString()}`
+        time.innerHTML += `Timestamp : ${new Date(this.coords[idx].timestamp).toLocaleString('en-GB', { timeZone: 'UTC' })}`
         info.appendChild(time)
       }
       if (this.leafMap.hasLayer(this.coordinate_tool_tip)) {
-        lat.innerHTML += `Latitude : ${this.coords[idx].position.lat}`
-        lon.innerHTML += `Longitude : ${this.coords[idx].position.lng}`
+        lat.innerHTML = `Latitude : ${this.coords[idx].position.lat}`
+        lon.innerHTML = `Longitude : ${this.coords[idx].position.lng}`
         info.appendChild(lat)
         info.appendChild(lon)
       }
