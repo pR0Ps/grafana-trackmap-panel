@@ -132,6 +132,27 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       idx--;
     }
     this.hoverMarker.setLatLng(this.coords[idx].position);
+
+    if (this.leafMap.hasLayer(this.time_stamp_tool_tip) || this.leafMap.hasLayer(this.coordinate_tool_tip)) {
+      // TODO: Remove bullet points from list
+      let info = document.createElement('ul')
+
+      let time = document.createElement('li')
+      let lat = document.createElement('li')
+      let lon = document.createElement('li')
+      if (this.leafMap.hasLayer(this.time_stamp_tool_tip)) {
+        // TODO: fix timestamp to correspond to grafana
+        time.innerHTML += `Timestamp : ${new Date(this.coords[idx].timestamp).toISOString()}`
+        info.appendChild(time)
+      }
+      if (this.leafMap.hasLayer(this.coordinate_tool_tip)) {
+        lat.innerHTML += `Latitude : ${this.coords[idx].position.lat}`
+        lon.innerHTML += `Longitude : ${this.coords[idx].position.lng}`
+        info.appendChild(lat)
+        info.appendChild(lon)
+      }
+      this.hoverMarker.bindTooltip(info).openTooltip();
+    }
   }
 
   onPanelClear(evt) {
@@ -208,8 +229,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       zoomDelta: 1,
     });
 
+    this.time_stamp_tool_tip = L.layerGroup([]);
+    this.coordinate_tool_tip = L.layerGroup([]);
+    this.ToolTipLayers = {"Timestamp": this.time_stamp_tool_tip, "Coordinates": this.coordinate_tool_tip}
     // Add layers to the control widget
-    L.control.layers(this.layers).addTo(this.leafMap);
+    L.control.layers(this.layers, this.ToolTipLayers).addTo(this.leafMap);
 
     // Add default layer to map
     this.layers[this.panel.defaultLayer].addTo(this.leafMap);
