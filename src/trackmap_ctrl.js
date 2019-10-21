@@ -2,7 +2,7 @@ import L from './leaflet/leaflet.js';
 import moment from 'moment';
 
 import appEvents from 'app/core/app_events';
-import {MetricsPanelCtrl} from 'app/plugins/sdk';
+import { MetricsPanelCtrl } from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
@@ -14,7 +14,7 @@ const panelDefaults = {
   defaultLayer: 'OpenStreetMap',
   lineColor: 'red',
   pointColor: 'royalblue',
-}
+};
 
 function log(msg) {
   // uncomment for debugging
@@ -25,29 +25,35 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   constructor($scope, $injector) {
     super($scope, $injector);
 
-    log("constructor");
+    log('constructor');
 
     _.defaults(this.panel, panelDefaults);
 
     // Save layers globally in order to use them in options
     this.layers = {
-      'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      OpenStreetMap: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
+        maxZoom: 19,
       }),
-      'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-        maxZoom: 17
+      OpenTopoMap: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution:
+          'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        maxZoom: 17,
       }),
-      'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Imagery &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-        // This map doesn't have labels so we force a label-only layer on top of it
-        forcedOverlay: L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {
-          attribution: 'Labels by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          subdomains: 'abcd',
-          maxZoom: 20,
-        })
-      })
+      Satellite: L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution:
+            'Imagery &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+          // This map doesn't have labels so we force a label-only layer on top of it
+          forcedOverlay: L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {
+            attribution:
+              'Labels by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            subdomains: 'abcd',
+            maxZoom: 20,
+          }),
+        }
+      ),
     };
 
     this.timeSrv = $injector.get('timeSrv');
@@ -72,23 +78,23 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
   }
 
-  onInitialized(){
-    log("onInitialized");
+  onInitialized() {
+    log('onInitialized');
     this.render();
   }
 
   onInitEditMode() {
-    log("onInitEditMode");
+    log('onInitEditMode');
     this.addEditorTab('Options', 'public/plugins/pr0ps-trackmap-panel/partials/options.html', 2);
   }
 
   onPanelTeardown() {
-    log("onPanelTeardown");
+    log('onPanelTeardown');
     this.$timeout.cancel(this.setSizePromise);
   }
 
   onPanelHover(evt) {
-    log("onPanelHover");
+    log('onPanelHover');
     if (this.coords.length === 0) {
       return;
     }
@@ -100,7 +106,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
 
     // check for initial show of the marker
-    if (this.hoverTarget == null){
+    if (this.hoverTarget == null) {
       this.hoverMarker.addTo(this.leafMap);
     }
 
@@ -118,11 +124,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       if (this.coords[idx].timestamp === this.hoverTarget) {
         exact = true;
         break;
-      }
-      else if (this.coords[idx].timestamp < this.hoverTarget) {
+      } else if (this.coords[idx].timestamp < this.hoverTarget) {
         min = idx + 1;
-      }
-      else {
+      } else {
         max = idx - 1;
       }
     }
@@ -135,30 +139,28 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // Add time and location tooltip
     if (this.leafMap.hasLayer(this.time_stamp_tool_tip) || this.leafMap.hasLayer(this.coordinate_tool_tip)) {
-      // TODO: Remove bullet points from list
-      let info = document.createElement('ul')
-      info.className = "tooltip-info"
+      let info = document.createElement('ul');
+      info.className = 'tooltip-info';
 
-      let time = document.createElement('li')
-      let lat = document.createElement('li')
-      let lon = document.createElement('li')
+      let time = document.createElement('li');
+      let lat = document.createElement('li');
+      let lon = document.createElement('li');
       if (this.leafMap.hasLayer(this.time_stamp_tool_tip)) {
-        // TODO: fix timestamp to correspond to grafana
-        time.innerHTML = `Timestamp : ${new Date(this.coords[idx].timestamp).toLocaleString('en-GB', { timeZone: 'UTC' })}`
-        info.appendChild(time)
+        time.innerHTML = `Timestamp : ${new Date(this.coords[idx].timestamp).toLocaleString('en-GB')}`;
+        info.appendChild(time);
       }
       if (this.leafMap.hasLayer(this.coordinate_tool_tip)) {
-        lat.innerHTML = `Latitude : ${this.coords[idx].position.lat}`
-        lon.innerHTML = `Longitude : ${this.coords[idx].position.lng}`
-        info.appendChild(lat)
-        info.appendChild(lon)
+        lat.innerHTML = `Latitude : ${this.coords[idx].position.lat}`;
+        lon.innerHTML = `Longitude : ${this.coords[idx].position.lng}`;
+        info.appendChild(lat);
+        info.appendChild(lon);
       }
       this.hoverMarker.bindTooltip(info).openTooltip();
     }
   }
 
   onPanelClear(evt) {
-    log("onPanelClear");
+    log('onPanelClear');
     // clear the highlighted circle
     this.hoverTarget = null;
     if (this.hoverMarker) {
@@ -166,8 +168,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
-  onViewModeChanged(){
-    log("onViewModeChanged");
+  onViewModeChanged() {
+    log('onViewModeChanged');
     // KLUDGE: When the view mode is changed, panel resize events are not
     //         emitted even if the panel was resized. Work around this by telling
     //         the panel it's been resized whenever the view mode changes.
@@ -175,26 +177,25 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   onPanelSizeChanged() {
-    log("onPanelSizeChanged");
+    log('onPanelSizeChanged');
     // KLUDGE: This event is fired too soon - we need to delay doing the actual
     //         size invalidation until after the panel has actually been resized.
     this.$timeout.cancel(this.setSizePromise);
     let map = this.leafMap;
-    this.setSizePromise = this.$timeout(function(){
+    this.setSizePromise = this.$timeout(function() {
       if (map) {
-        log("Invalidating map size");
+        log('Invalidating map size');
         map.invalidateSize(true);
-      }}, 500
-    );
+      }
+    }, 500);
   }
 
   applyScrollZoom() {
     let enabled = this.leafMap.scrollWheelZoom.enabled();
-    if (enabled != this.panel.scrollWheelZoom){
-      if (enabled){
+    if (enabled != this.panel.scrollWheelZoom) {
+      if (enabled) {
         this.leafMap.scrollWheelZoom.disable();
-      }
-      else{
+      } else {
         this.leafMap.scrollWheelZoom.enable();
       }
     }
@@ -204,8 +205,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let hadMap = Boolean(this.leafMap);
     this.setupMap();
     // Only need to re-add layers if the map previously existed
-    if (hadMap){
-      this.leafMap.eachLayer((layer) => {
+    if (hadMap) {
+      this.leafMap.eachLayer(layer => {
         layer.removeFrom(this.leafMap);
       });
       this.layers[this.panel.defaultLayer].addTo(this.leafMap);
@@ -214,7 +215,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   setupMap() {
-    log("setupMap");
+    log('setupMap');
     // Create the map or get it back in a clean state if it already exists
     if (this.leafMap) {
       if (this.polyline) {
@@ -233,7 +234,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     this.time_stamp_tool_tip = L.layerGroup([]);
     this.coordinate_tool_tip = L.layerGroup([]);
-    this.ToolTipLayers = {"Timestamp": this.time_stamp_tool_tip, "Coordinates": this.coordinate_tool_tip}
+    this.ToolTipLayers = { Timestamp: this.time_stamp_tool_tip, Coordinates: this.coordinate_tool_tip };
     // Add layers to the control widget
     L.control.layers(this.layers, this.ToolTipLayers).addTo(this.leafMap);
 
@@ -246,7 +247,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       fillColor: this.panel.pointColor,
       fillOpacity: 1,
       weight: 2,
-      radius: 7
+      radius: 7,
     });
 
     // Events
@@ -270,7 +271,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   mapZoomToBox(e) {
-    log("mapZoomToBox");
+    log('mapZoomToBox');
     // Find time bounds of selected coordinates
     const bounds = this.coords.reduce(
       function(t, c) {
@@ -280,7 +281,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         }
         return t;
       },
-      {from: Infinity, to: -Infinity}
+      { from: Infinity, to: -Infinity }
     );
 
     // Set the global time range
@@ -289,40 +290,38 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       //         occurs when Grafana processes normal numbers
       this.timeSrv.setTime({
         from: moment.utc(bounds.from),
-        to: moment.utc(bounds.to)
+        to: moment.utc(bounds.to),
       });
     }
   }
 
   // Add the circles and polyline to the map
   addDataToMap() {
-    log("addDataToMap");
-    this.polyline = L.polyline(
-      this.coords.map(x => x.position, this), {
-        color: this.panel.lineColor,
-        weight: 3,
-      }
-    ).addTo(this.leafMap);
+    log('addDataToMap');
+    this.polyline = L.polyline(this.coords.map(x => x.position, this), {
+      color: this.panel.lineColor,
+      weight: 3,
+    }).addTo(this.leafMap);
 
     this.zoomToFit();
   }
 
-  zoomToFit(){
-    log("zoomToFit");
-    if (this.panel.autoZoom && this.polyline){
+  zoomToFit() {
+    log('zoomToFit');
+    if (this.panel.autoZoom && this.polyline) {
       this.leafMap.fitBounds(this.polyline.getBounds());
     }
     this.render();
   }
 
   refreshColors() {
-    log("refreshColors");
+    log('refreshColors');
     if (this.polyline) {
       this.polyline.setStyle({
-        color: this.panel.lineColor
+        color: this.panel.lineColor,
       });
     }
-    if (this.hoverMarker){
+    if (this.hoverMarker) {
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
       });
@@ -331,7 +330,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   onDataReceived(data) {
-    log("onDataReceived");
+    log('onDataReceived');
     this.setupMap();
 
     if (data.length === 0 || data.length !== 2) {
@@ -346,21 +345,20 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     const lats = data[0].datapoints;
     const lons = data[1].datapoints;
     for (let i = 0; i < lats.length; i++) {
-      if (lats[i][0] == null || lons[i][0] == null ||
-          lats[i][1] !== lons[i][1]) {
+      if (lats[i][0] == null || lons[i][0] == null || lats[i][1] !== lons[i][1]) {
         continue;
       }
 
       this.coords.push({
         position: L.latLng(lats[i][0], lons[i][0]),
-        timestamp: lats[i][1]
+        timestamp: lats[i][1],
       });
     }
     this.addDataToMap();
   }
 
   onDataSnapshotLoad(snapshotData) {
-    log("onSnapshotLoad");
+    log('onSnapshotLoad');
     this.onDataReceived(snapshotData);
   }
 }
