@@ -19,6 +19,7 @@
       </div>
     </div>
   </div>
+
   <div class="section gf-form-group">
     <h5 class="section-heading">Colors</h5>
     <div class="gf-form">
@@ -31,6 +32,22 @@
       <label class="gf-form-label width-9">Point Color</label>
       <span class="max-width-10">
         <spectrum-picker class="gf-form-input" ng-model="ctrl.panel.pointColor" ng-change="ctrl.refreshColors()"/>
+      </span>
+    </div>
+  </div>
+
+  <div class="section gf-form-group">
+    <h5 class="section-heading">Map overlay</h5>
+    <div class="gf-form">
+      <span class="width-12">
+        <button class="btn btn-inverse" ng-model="ctrl.panel.geoJsonFile">
+          <i class="fa fa-plus"></i>&nbsp;Import GeoJSON<tip>This file will be used to add a layer on the map</tip>
+        </button>
+      </span>
+    </div>
+    <div class="gf-form">
+      <span class="width-12">
+        <textarea class="gf-form-input" rows="5" ng-model="ctrl.panel.geoJsonCode" spellcheck='false' placeholder='Copy paste your GeoJSON file here.' ng-change="ctrl.importCode()"></textarea>
       </span>
     </div>
   </div>

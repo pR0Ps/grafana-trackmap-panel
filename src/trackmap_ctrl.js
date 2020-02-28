@@ -2,7 +2,9 @@ import L from './leaflet/leaflet.js';
 import moment from 'moment';
 
 import appEvents from 'app/core/app_events';
-import {MetricsPanelCtrl} from 'app/plugins/sdk';
+import {
+  MetricsPanelCtrl
+} from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
@@ -14,6 +16,8 @@ const panelDefaults = {
   defaultLayer: 'OpenStreetMap',
   lineColor: 'red',
   pointColor: 'royalblue',
+  geoJsonFile: 'test.json',
+  geoJsonCode: '{}'
 }
 
 function log(msg) {
@@ -72,7 +76,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
   }
 
-  onInitialized(){
+  onInitialized() {
     log("onInitialized");
     this.render();
   }
@@ -100,7 +104,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
 
     // check for initial show of the marker
-    if (this.hoverTarget == null){
+    if (this.hoverTarget == null) {
       this.hoverMarker.addTo(this.leafMap);
     }
 
@@ -118,11 +122,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       if (this.coords[idx].timestamp === this.hoverTarget) {
         exact = true;
         break;
-      }
-      else if (this.coords[idx].timestamp < this.hoverTarget) {
+      } else if (this.coords[idx].timestamp < this.hoverTarget) {
         min = idx + 1;
-      }
-      else {
+      } else {
         max = idx - 1;
       }
     }
@@ -143,7 +145,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
-  onViewModeChanged(){
+  onViewModeChanged() {
     log("onViewModeChanged");
     // KLUDGE: When the view mode is changed, panel resize events are not
     //         emitted even if the panel was resized. Work around this by telling
@@ -157,21 +159,20 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     //         size invalidation until after the panel has actually been resized.
     this.$timeout.cancel(this.setSizePromise);
     let map = this.leafMap;
-    this.setSizePromise = this.$timeout(function(){
+    this.setSizePromise = this.$timeout(function() {
       if (map) {
         log("Invalidating map size");
         map.invalidateSize(true);
-      }}, 500
-    );
+      }
+    }, 500);
   }
 
   applyScrollZoom() {
     let enabled = this.leafMap.scrollWheelZoom.enabled();
-    if (enabled != this.panel.scrollWheelZoom){
-      if (enabled){
+    if (enabled != this.panel.scrollWheelZoom) {
+      if (enabled) {
         this.leafMap.scrollWheelZoom.disable();
-      }
-      else{
+      } else {
         this.leafMap.scrollWheelZoom.enable();
       }
     }
@@ -181,7 +182,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let hadMap = Boolean(this.leafMap);
     this.setupMap();
     // Only need to re-add layers if the map previously existed
-    if (hadMap){
+    if (hadMap) {
       this.leafMap.eachLayer((layer) => {
         layer.removeFrom(this.leafMap);
       });
@@ -253,8 +254,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
           t.to = Math.max(t.to, c.timestamp);
         }
         return t;
-      },
-      {from: Infinity, to: -Infinity}
+      }, {
+        from: Infinity,
+        to: -Infinity
+      }
     );
 
     // Set the global time range
@@ -281,9 +284,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.zoomToFit();
   }
 
-  zoomToFit(){
+  zoomToFit() {
     log("zoomToFit");
-    if (this.panel.autoZoom && this.polyline){
+    if (this.panel.autoZoom && this.polyline) {
       this.leafMap.fitBounds(this.polyline.getBounds());
     }
     this.render();
@@ -296,7 +299,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         color: this.panel.lineColor
       });
     }
-    if (this.hoverMarker){
+    if (this.hoverMarker) {
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
       });
@@ -321,7 +324,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     const lons = data[1].datapoints;
     for (let i = 0; i < lats.length; i++) {
       if (lats[i][0] == null || lons[i][0] == null ||
-          lats[i][1] !== lons[i][1]) {
+        lats[i][1] !== lons[i][1]) {
         continue;
       }
 
@@ -337,6 +340,18 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("onSnapshotLoad");
     this.onDataReceived(snapshotData);
   }
+
+  importFile() {
+    log("importFile");
+  }
+
+  importCode() {
+    log("importCode");
+    log(this.panel.geoJsonCode);
+    var map = this.leafMap;
+    L.geoJson(JSON.parse(this.panel.geoJsonCode)).addTo(map);
+  }
+
 }
 
 TrackMapCtrl.templateUrl = 'partials/module.html';
