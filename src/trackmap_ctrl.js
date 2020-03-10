@@ -17,7 +17,7 @@ const panelDefaults = {
   lineColor: 'red',
   pointColor: 'royalblue',
   geoJsonFile: 'test.json',
-  geoJsonCode: '{}'
+  geoJsonText: '{}'
 }
 
 function log(msg) {
@@ -345,11 +345,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("importFile");
   }
 
-  importCode() {
-    log("importCode");
-    log(this.panel.geoJsonCode);
+  importGeoJsonText() {
+    log("importGeoJsonText");
+    log(this.panel.geoJsonText);
     var map = this.leafMap;
-    L.geoJson(JSON.parse(this.panel.geoJsonCode)).addTo(map);
+    L.geoJson(JSON.parse(this.panel.geoJsonText)).addTo(map);
   }
 
 }
