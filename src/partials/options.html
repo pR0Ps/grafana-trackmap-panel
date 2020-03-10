@@ -40,9 +40,10 @@
     <h5 class="section-heading">Map overlay</h5>
     <div class="gf-form">
       <span class="width-12">
-        <button class="btn btn-inverse" ng-model="ctrl.panel.geoJsonFile">
+        <button class="btn btn-inverse" ng-model="ctrl.panel.geoJsonFile" onclick="document.querySelector('.inputFile').click();">
           <i class="fa fa-plus"></i>&nbsp;Import GeoJSON<tip>This file will be used to add a layer on the map</tip>
         </button>
+        <input class="inputFile" type="file" accept=".json" style="display: none;">
       </span>
     </div>
     <div class="gf-form">
