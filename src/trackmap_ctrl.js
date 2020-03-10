@@ -349,7 +349,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("importGeoJsonText");
     log(this.panel.geoJsonText);
     var map = this.leafMap;
-    L.geoJson(JSON.parse(this.panel.geoJsonText)).addTo(map);
+    try {
+      // Parse new overlay
+      var geojson = JSON.parse(this.panel.geoJsonText);
+      // Add new overlay
+      L.geoJson(geojson).addTo(map);
+    } catch (e) {
+      console.error("Parsing error: ", e);
+    }
   }
 
 }
