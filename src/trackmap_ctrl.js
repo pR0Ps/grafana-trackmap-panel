@@ -16,7 +16,6 @@ const panelDefaults = {
   defaultLayer: 'OpenStreetMap',
   lineColor: 'red',
   pointColor: 'royalblue',
-  geoJsonFile: 'test.json',
   geoJsonCode: '{}'
 }
 
@@ -341,15 +340,25 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.onDataReceived(snapshotData);
   }
 
-  importFile() {
-    log("importFile");
-  }
-
   importCode() {
     log("importCode");
     log(this.panel.geoJsonCode);
     var map = this.leafMap;
     L.geoJson(JSON.parse(this.panel.geoJsonCode)).addTo(map);
+  }
+
+  importFile() {
+    console.log("importFile");
+
+    var file = document.getElementById('fichier').files[0];
+    var reader = new FileReader();
+    var map = this.leafMap;
+
+    reader.onload = function(e) {
+        L.geoJson(JSON.parse(e.target.result)).addTo(map);
+    };
+
+    reader.readAsText(file);
   }
 
 }
