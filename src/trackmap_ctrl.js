@@ -17,7 +17,8 @@ const panelDefaults = {
   lineColor: 'red',
   pointColor: 'royalblue',
   geoJsonFile: 'test.json',
-  geoJsonText: '{}'
+  geoJsonText: '{}',
+  geoJsonObject: null
 }
 
 function log(msg) {
@@ -349,11 +350,21 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("importGeoJsonText");
     log(this.panel.geoJsonText);
     var map = this.leafMap;
+
+    // Remove previous overlay
+    if (this.panel.geoJsonObject != null) {
+      this.panel.geoJsonObject.removeFrom(map);
+    }
+
+    if (this.panel.geoJsonText == "") return;
+
     try {
       // Parse new overlay
       var geojson = JSON.parse(this.panel.geoJsonText);
+      // Save new overlay
+      this.panel.geoJsonObject = L.geoJson(geojson);
       // Add new overlay
-      L.geoJson(geojson).addTo(map);
+      this.panel.geoJsonObject.addTo(map);
     } catch (e) {
       console.error("Parsing error: ", e);
     }
