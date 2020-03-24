@@ -342,10 +342,6 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.onDataReceived(snapshotData);
   }
 
-  importFile() {
-    log("importFile");
-  }
-
   importGeoJsonText() {
     log("importGeoJsonText");
     log(this.panel.geoJsonText);
@@ -368,6 +364,20 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     } catch (e) {
       console.error("Parsing error: ", e);
     }
+  }
+
+  importFile() {
+    console.log("importFile");
+
+    var file = document.getElementById('fichier').files[0];
+    var reader = new FileReader();
+    var map = this.leafMap;
+
+    reader.onload = function(e) {
+      L.geoJson(JSON.parse(e.target.result)).addTo(map);
+    };
+
+    reader.readAsText(file);
   }
 
 }
