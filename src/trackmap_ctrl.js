@@ -17,7 +17,9 @@ const panelDefaults = {
   defaultLayer: 'OpenStreetMap',
   lineColor: 'red',
   pointColor: 'royalblue',
-  geoJsonCode: '{}'
+  geoJsonFile: 'test.json',
+  geoJsonText: '{}',
+  geoJsonObject: null
 }
 
 function log(msg) {
@@ -341,11 +343,28 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.onDataReceived(snapshotData);
   }
 
-  importCode() {
-    log("importCode");
-    log(this.panel.geoJsonCode);
+  importGeoJsonText() {
+    log("importGeoJsonText");
+    log(this.panel.geoJsonText);
     var map = this.leafMap;
-    L.geoJson(JSON.parse(this.panel.geoJsonCode)).addTo(map);
+
+    // Remove previous overlay
+    if (this.panel.geoJsonObject != null) {
+      this.panel.geoJsonObject.removeFrom(map);
+    }
+
+    if (this.panel.geoJsonText == "") return;
+
+    try {
+      // Parse new overlay
+      var geojson = JSON.parse(this.panel.geoJsonText);
+      // Save new overlay
+      this.panel.geoJsonObject = L.geoJson(geojson);
+      // Add new overlay
+      this.panel.geoJsonObject.addTo(map);
+    } catch (e) {
+      console.error("Parsing error: ", e);
+    }
   }
 
   importFile() {
@@ -356,7 +375,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     var map = this.leafMap;
 
     reader.onload = function(e) {
-        L.geoJson(JSON.parse(e.target.result)).addTo(map);
+      L.geoJson(JSON.parse(e.target.result)).addTo(map);
     };
 
     reader.readAsText(file);
