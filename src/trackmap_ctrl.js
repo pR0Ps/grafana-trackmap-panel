@@ -390,6 +390,18 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.panel.geoJsonObject = null;
   }
 
+  downloadOverlay() {
+    log("downloadOverlay");
+  }
+
+  editOverlay() {
+    log("editOverlay");
+  }
+
+  deleteOverlay() {
+    log("deleteOverlay");
+  }
+
 }
 
 TrackMapCtrl.templateUrl = 'partials/module.html';

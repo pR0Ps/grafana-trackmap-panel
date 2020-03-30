@@ -37,21 +37,39 @@
   </div>
 
   <div class="section gf-form-group">
-    <h5 class="section-heading">Map overlay</h5>
+    <h5 class="section-heading">Overlay creation</h5>
     <div class="gf-form">
       <div class="parent-div">
         <button class="btn btn-inverse">Browse</button>
         <input type=file id=fichier name=fichier accept=".json" />
       </div>
       <button class="btn btn-inverse" ng-click="ctrl.importFile()">
-        <i class="fa fa-plus"></i>&nbsp;Import GeoJSON<tip>This file will be used to add a layer on the map</tip></button>
+        <i class="fa fa-plus"></i>&nbsp;Import GeoJSON</button>
     </div>
     <div class="gf-form">
-      <span class="width-12">
-        <textarea class="gf-form-input" rows="5" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy and paste your GeoJSON file here.' ng-change="ctrl.importGeoJsonText()"></textarea>
-      </span>
-      <button class="btn btn-inverse" ng-click="ctrl.saveGeoJsonText()">
-        <i class="fa fa-save"></i>&nbsp;Save<tip>This will add a layer on the map</tip></button>
+      <textarea style="resize: both" class="gf-form-input" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy and paste your GeoJSON file here.' ng-change="ctrl.importGeoJsonText()"></textarea>
+    </div>
+    <button class="btn btn-inverse" ng-click="ctrl.saveGeoJsonText()">
+      <i class="fa fa-save"></i>&nbsp;Save</button>
+  </div>
+
+  <div class="section gf-form-group">
+    <h5 class="section-heading">Overlay list ({{ctrl.panel.geoJsonObjectList.length}})</h5>
+    <div class="gf-form">
+      <ul style="list-style-type:none">
+        <li ng-repeat="overlay in ctrl.panel.geoJsonObjectList">
+          <label class="gf-form-label" style="display: inline">
+            <!-- <i class="fa fa-ellipsis-v"></i>&nbsp; -->
+            Overlay {{overlay._leaflet_id}}
+          </label>
+          <button data-toggle="tooltip" title="Download this overlay" class="btn btn-inverse" ng-click="ctrl.downloadOverlay()">
+            <i class="fa fa-download"></i></button>
+          <button data-toggle="tooltip" title="Edit this overlay" class="btn btn-inverse" ng-click="ctrl.editOverlay()">
+            <i class="fa fa-edit"></i></button>
+          <button data-toggle="tooltip" title="Delete this overlay" class="btn btn-inverse" ng-click="ctrl.deleteOverlay()">
+            <i class="fa fa-trash"></i></button>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
