@@ -17,8 +17,9 @@ const panelDefaults = {
   lineColor: 'red',
   pointColor: 'royalblue',
   geoJsonFile: 'test.json',
-  geoJsonText: '{}',
-  geoJsonObject: null
+  geoJsonText: '',
+  geoJsonObject: null,
+  geoJsonObjectList: []
 }
 
 function log(msg) {
@@ -367,7 +368,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   importFile() {
-    console.log("importFile");
+    log("importFile");
 
     var file = document.getElementById('fichier').files[0];
     var reader = new FileReader();
@@ -378,6 +379,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     };
 
     reader.readAsText(file);
+  }
+
+  saveGeoJsonText() {
+    log("saveGeoJsonText");
+
+    this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+    this.panel.geoJsonText = "";
+    this.panel.geoJsonObject = null;
   }
 
 }

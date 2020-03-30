@@ -45,8 +45,10 @@
     </div>
     <div class="gf-form">
       <span class="width-12">
-        <textarea class="gf-form-input" rows="5" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy paste your GeoJSON file here.' ng-change="ctrl.importGeoJsonText()"></textarea>
+        <textarea class="gf-form-input" rows="5" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy and paste your GeoJSON file here.' ng-change="ctrl.importGeoJsonText()"></textarea>
       </span>
+      <button class="btn btn-inverse" ng-click="ctrl.saveGeoJsonText()">
+        <i class="fa fa-save"></i>&nbsp;Save<tip>This will add a layer on the map</tip></button>
     </div>
   </div>
 </div>
