@@ -18,7 +18,7 @@ const panelDefaults = {
   lineColor: 'red',
   pointColor: 'royalblue',
   geoJsonFile: 'test.json',
-  geoJsonText: '',
+  geoJsonText: '{}',
   geoJsonObject: null,
   geoJsonObjectList: []
 }
