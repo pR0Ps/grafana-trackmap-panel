@@ -8,6 +8,7 @@ import {
 
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
+import './partials/options.css!';
 
 const panelDefaults = {
   maxDataPoints: 500,
