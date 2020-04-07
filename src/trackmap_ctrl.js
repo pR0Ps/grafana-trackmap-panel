@@ -381,6 +381,19 @@ importFile(){
     var uploadFile = document.getElementById('file').files[0];
     var reader = new FileReader();
     var map = this.leafMap;
+            try {
+                // Parse new overlay
+                var geojson = JSON.parse(e.target.result);
+                // Save new overlay
+                this.panel.geoJsonObject = L.geoJson(geojson);
+                // Add new overlay
+                this.panel.geoJsonObject.addTo(map);
+                this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+                this.panel.geoJsonObject = null;
+                this.$scope.$apply();
+            } catch (e) {
+                console.error("Parsing error: ", e);
+            }
 
     reader.onload = function(e) {
       L.geoJson(JSON.parse(e.target.result)).addTo(map);
