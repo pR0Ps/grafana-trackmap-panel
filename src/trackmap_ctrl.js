@@ -353,7 +353,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       this.panel.geoJsonObject.removeFrom(map);
     }
 
-    if (this.panel.geoJsonText == "") return;
+    if (this.panel.geoJsonText == "") {
+      this.panel.geoJsonText = null;
+      return;
+    }
 
     try {
       // Parse new overlay
@@ -391,6 +394,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   saveGeoJsonText() {
     log("saveGeoJsonText");
+
+    if (this.panel.geoJsonObject == null || this.panel.geoJsonText == "") return;
 
     this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
     this.panel.geoJsonText = "";
