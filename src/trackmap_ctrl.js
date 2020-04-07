@@ -17,7 +17,7 @@ const panelDefaults = {
   lineColor: 'red',
   pointColor: 'royalblue',
   geoJsonFile: 'test.json',
-  geoJsonText: '',
+  geoJsonText: '{}',
   geoJsonObject: null,
   geoJsonObjectList: []
 }
@@ -395,6 +395,23 @@ importFile(){
     this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
     this.panel.geoJsonText = "";
     this.panel.geoJsonObject = null;
+  }
+
+  downloadOverlay() {
+    log("downloadOverlay");
+  }
+
+  editOverlay() {
+    log("editOverlay");
+  }
+
+  deleteOverlay(overlay) {
+    log("deleteOverlay");
+    
+    if (overlay != null) {
+      overlay.removeFrom(this.leafMap);
+      this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(o => o !== overlay);
+    }
   }
 
 }
