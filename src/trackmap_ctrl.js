@@ -8,7 +8,6 @@ import {
 
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
-import './partials/options.css!';
 
 const panelDefaults = {
   maxDataPoints: 500,
@@ -368,10 +367,18 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
-  importFile() {
-    log("importFile");
+HandleFileButtonClick(){
+    document.frmUpload.file.click();
+    document.getElementById('file').onchange = () => {
+        const path = document.frmUpload.file.value.split("\\");
+        document.frmUpload.fileName.value = path[path.length-1];
+        this.importFile();
+    };
+}
 
-    var file = document.getElementById('fichier').files[0];
+importFile(){
+    log("importFile");
+    var uploadFile = document.getElementById('file').files[0];
     var reader = new FileReader();
     var map = this.leafMap;
 
@@ -379,8 +386,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       L.geoJson(JSON.parse(e.target.result)).addTo(map);
     };
 
-    reader.readAsText(file);
-  }
+    reader.readAsText(uploadFile);
+}
 
   saveGeoJsonText() {
     log("saveGeoJsonText");

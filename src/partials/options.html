@@ -39,12 +39,11 @@
   <div class="section gf-form-group">
     <h5 class="section-heading">Map overlay</h5>
     <div class="gf-form">
-      <div class="parent-div">
-        <button class="btn btn-inverse">Browse</button>
-        <input type=file id=fichier name=fichier accept=".json" />
-      </div>
-      <button class="btn btn-inverse" ng-click="ctrl.importFile()">
-        <i class="fa fa-plus"></i>&nbsp;Import GeoJSON<tip>This file will be used to add a layer on the map</tip></button>
+      <form name="frmUpload">
+        <input type=file id=file name=file accept=".json" style="display: none" ng-model="ctrl.panel.geoJsonFile" ng-change="ctrl.displayName()" />
+        <input type="text" name="fileName" readonly>
+        <button class="btn btn-inverse" ng-click="ctrl.HandleFileButtonClick();" value="button"> <i class="fa fa-plus"></i>&nbsp;Import GeoJSON<tip>This file will be used to add a layer on the map</tip></button> </button>
+      </form>
     </div>
     <div class="gf-form">
       <span class="width-12">
