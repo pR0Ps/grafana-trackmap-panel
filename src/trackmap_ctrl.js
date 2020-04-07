@@ -390,8 +390,20 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.panel.geoJsonObject = null;
   }
 
-  downloadOverlay() {
+  downloadOverlay(overlay) {
     log("downloadOverlay");
+
+    var element = document.createElement('a');
+    var text = JSON.stringify(overlay.toGeoJSON());
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', 'overlay.json'); // TODO change to overlay name
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
   }
 
   editOverlay() {
