@@ -345,7 +345,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   importGeoJsonText() {
     log("importGeoJsonText");
-    log(this.panel.geoJsonText);
+
     var map = this.leafMap;
 
     // Remove previous overlay
@@ -367,16 +367,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
-HandleFileButtonClick(){
+  HandleFileButtonClick() {
     document.frmUpload.file.click();
     document.getElementById('file').onchange = () => {
-        const path = document.frmUpload.file.value.split("\\");
-        document.frmUpload.fileName.value = path[path.length-1];
-        this.importFile();
+      const path = document.frmUpload.file.value.split("\\");
+      document.frmUpload.fileName.value = path[path.length - 1];
+      this.importFile();
     };
-}
+  }
 
-importFile(){
+  importFile() {
     log("importFile");
     var uploadFile = document.getElementById('file').files[0];
     var reader = new FileReader();
@@ -387,7 +387,7 @@ importFile(){
     };
 
     reader.readAsText(uploadFile);
-}
+  }
 
   saveGeoJsonText() {
     log("saveGeoJsonText");
@@ -404,12 +404,12 @@ importFile(){
     var text = JSON.stringify(overlay.toGeoJSON());
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', 'overlay.json'); // TODO change to overlay name
-  
+
     element.style.display = 'none';
     document.body.appendChild(element);
-  
+
     element.click();
-  
+
     document.body.removeChild(element);
   }
 
@@ -419,7 +419,7 @@ importFile(){
 
   deleteOverlay(overlay) {
     log("deleteOverlay");
-    
+
     if (overlay != null) {
       overlay.removeFrom(this.leafMap);
       this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(o => o !== overlay);
