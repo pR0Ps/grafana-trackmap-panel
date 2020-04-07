@@ -39,7 +39,7 @@
       <form name="frmUpload">
         <input type=file id=file name=file accept=".json" style="display: none" ng-model="ctrl.panel.geoJsonFile" ng-change="ctrl.displayName()" />
         <input type="text" name="fileName" readonly>
-        <button class="btn btn-inverse" ng-click="ctrl.HandleFileButtonClick();" value="button"> <i class="fa fa-plus"></i>&nbsp;Import GeoJSON<tip>This file will be used to add a layer on the map</tip></button> </button>
+        <button class="btn btn-inverse" ng-click="ctrl.HandleFileButtonClick();" value="button"> <i class="fa fa-plus"></i>&nbsp;Import GeoJSON<tip>This file will be used to add a layer on the map</tip></button>
       </form>
     </div>
     <div class="gf-form">
@@ -58,7 +58,7 @@
             <!-- <i class="fa fa-ellipsis-v"></i>&nbsp; -->
             Overlay {{overlay._leaflet_id}}
           </label>
-          <button data-toggle="tooltip" title="Download this overlay" class="btn btn-inverse" ng-click="ctrl.downloadOverlay()">
+          <button data-toggle="tooltip" title="Download this overlay" class="btn btn-inverse" ng-click="ctrl.downloadOverlay(overlay)">
             <i class="fa fa-download"></i></button>
           <button data-toggle="tooltip" title="Edit this overlay" class="btn btn-inverse" ng-click="ctrl.editOverlay()">
             <i class="fa fa-edit"></i></button>
