@@ -398,8 +398,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("editOverlay");
   }
 
-  deleteOverlay() {
+  deleteOverlay(overlay) {
     log("deleteOverlay");
+    
+    if (overlay != null) {
+      overlay.removeFrom(this.leafMap);
+      this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(o => o !== overlay);
+    }
   }
 
 }
