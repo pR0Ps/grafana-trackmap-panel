@@ -363,8 +363,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       var geojson = JSON.parse(this.panel.geoJsonText);
       // Save new overlay
       this.panel.geoJsonObject = L.geoJson(geojson);
-      // Add new overlay
-      this.panel.geoJsonObject.addTo(map);
+      // Create the string for the popup with the geojson properties
+      var st = '';
+      for(var p in geojson.features[0].properties) {
+        st = st.concat(p + ': ' + geojson.features[0].properties[p] + '<br>');
+      }
+      // Add new overlay and popup
+      this.panel.geoJsonObject.bindPopup(st).addTo(map);
     } catch (e) {
       console.error("Parsing error: ", e);
     }
@@ -390,8 +395,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         var geojson = JSON.parse(e.target.result);
         // Save new overlay
         this.panel.geoJsonObject = L.geoJson(geojson);
-        // Add new overlay
-        this.panel.geoJsonObject.addTo(map);
+        // Create the string for the popup with the geojson properties
+        var st = '';
+        for(var p in geojson.features[0].properties) {
+          st = st.concat(p + ': ' + geojson.features[0].properties[p] + '<br>');
+        }
+        // Add new overlay and popup
+        this.panel.geoJsonObject.bindPopup(st).addTo(map);
+        // Save the geoJson overlay
         this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
         this.panel.geoJsonObject = null;
         this.$scope.$apply();
