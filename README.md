@@ -9,16 +9,12 @@ Features
 - Multiple map backgrounds: [OpenStreetMap](https://www.openstreetmap.org/),
   [OpenTopoMap](https://opentopomap.org/), and [Satellite imagery](https://www.esri.com/).
 - Track and dot colors can be customized in the options tab.
-- Add a GeoJson overlay from a file or via a textarea.
-- Download, edit or delete an overlay.  
-- Check the GeoJson properties by clicking on the overlay.
 
 Screenshots
 -----------
 ![Show current selection as a dot on the map](src/img/topo-crosshair.jpg)
 ![Zoom in by selecting a range of points](src/img/topo-boxselect.jpg)
 ![Chose what map to display the data on](src/img/satellite-picker.jpg)
-![Show geoJson overlay and its properties](src/img/GeoJsonOverlay-popup.png)
 
 Installation
 ------------
