@@ -43,7 +43,7 @@
       </form>
     </div>
     <div class="gf-form">
-      <textarea style="resize: both" class="gf-form-input" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy and paste your GeoJSON file here.' ng-change="ctrl.importGeoJsonText()"></textarea>
+      <textarea id="overlayTextarea" data-edit="false" style="resize: both" class="gf-form-input" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy and paste your GeoJSON file here.' ng-change="ctrl.importGeoJsonText()"></textarea>
     </div>
     <button class="btn btn-inverse" ng-click="ctrl.saveGeoJsonText()">
       <i class="fa fa-save"></i>&nbsp;Save</button>
@@ -60,7 +60,7 @@
           </label>
           <button data-toggle="tooltip" title="Download this overlay" class="btn btn-inverse" ng-click="ctrl.downloadOverlay(overlay)">
             <i class="fa fa-download"></i></button>
-          <button data-toggle="tooltip" title="Edit this overlay" class="btn btn-inverse" ng-click="ctrl.editOverlay()">
+          <button data-toggle="tooltip" title="Edit this overlay" class="btn btn-inverse" ng-click="ctrl.editOverlay(overlay)">
             <i class="fa fa-edit"></i></button>
           <button data-toggle="tooltip" title="Delete this overlay" class="btn btn-inverse" ng-click="ctrl.deleteOverlay(overlay)">
             <i class="fa fa-trash"></i></button>

@@ -346,7 +346,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   importGeoJsonText() {
     log("importGeoJsonText");
 
-    var map = this.leafMap;
+    let map = this.leafMap;
 
     // Remove previous overlay
     if (this.panel.geoJsonObject != null) {
@@ -358,16 +358,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       return;
     }
 
-    try {
-      // Parse new overlay
-      var geojson = JSON.parse(this.panel.geoJsonText);
-      // Save new overlay
-      this.panel.geoJsonObject = L.geoJson(geojson);
-      // Add new overlay
-      this.panel.geoJsonObject.addTo(map);
-    } catch (e) {
-      console.error("Parsing error: ", e);
-    }
+    this.addOverlayToMap(this.panel.geoJsonText, false);
   }
 
   HandleFileButtonClick() {
@@ -381,23 +372,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   importFile() {
     log("importFile");
-    var uploadFile = document.getElementById('file').files[0];
-    var reader = new FileReader();
-    var map = this.leafMap;
+    let uploadFile = document.getElementById('file').files[0];
+    let reader = new FileReader();
     reader.onload = (e) => {
-      try {
-        // Parse new overlay
-        var geojson = JSON.parse(e.target.result);
-        // Save new overlay
-        this.panel.geoJsonObject = L.geoJson(geojson);
-        // Add new overlay
-        this.panel.geoJsonObject.addTo(map);
-        this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
-        this.panel.geoJsonObject = null;
-        this.$scope.$apply();
-      } catch (e) {
-        console.error("Parsing error: ", e);
-      }
+      this.addOverlayToMap(e.target.result, true);
     };
 
     reader.readAsText(uploadFile);
@@ -408,7 +386,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     if (this.panel.geoJsonObject == null || this.panel.geoJsonText == "") return;
 
-    this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+    let overlayTextarea = document.getElementById('overlayTextarea');
+    if (overlayTextarea.dataset.edit == "false") {
+      this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+    } else {
+      overlayTextarea.dataset.edit = "false";
+    }
     this.panel.geoJsonText = "";
     this.panel.geoJsonObject = null;
   }
@@ -416,8 +399,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   downloadOverlay(overlay) {
     log("downloadOverlay");
 
-    var element = document.createElement('a');
-    var text = JSON.stringify(overlay.toGeoJSON());
+    let element = document.createElement('a');
+    let text = this.sonToString(overlay);
+    // var text = JSON.stringify(overlay.toGeoJSON());
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', 'overlay.json'); // TODO change to overlay name
 
@@ -429,8 +413,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     document.body.removeChild(element);
   }
 
-  editOverlay() {
+  editOverlay(overlay) {
     log("editOverlay");
+
+    document.getElementById('overlayTextarea').dataset.edit = "true";
+    this.panel.geoJsonText = this.jsonToString(overlay);
+    document.getElementById("overlayTextarea").value = this.panel.geoJsonText;
+    this.panel.geoJsonObject = overlay;
   }
 
   deleteOverlay(overlay) {
@@ -439,6 +428,30 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     if (overlay != null) {
       overlay.removeFrom(this.leafMap);
       this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(o => o !== overlay);
+    }
+  }
+
+  jsonToString(overlay) {
+    return JSON.stringify(overlay.toGeoJSON(), null, "  ");
+  }
+
+  addOverlayToMap(text, addToList) {
+    let map = this.leafMap;
+    try {
+      // Parse new overlay
+      var geojson = JSON.parse(text);
+      // Save new overlay
+      this.panel.geoJsonObject = L.geoJson(geojson);
+      // Add new overlay
+      this.panel.geoJsonObject.addTo(map);
+      // Add to list
+      if (addToList) {
+        this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+        this.panel.geoJsonObject = null;
+        this.$scope.$apply();
+      }
+    } catch (e) {
+      console.error("Parsing error: ", e);
     }
   }
 
