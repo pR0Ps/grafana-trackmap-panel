@@ -95,18 +95,18 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   onPanelHover(evt) {
     log("onPanelHover");
-    if(this.coords.length === 0) {
+    if (this.coords.length === 0) {
       return;
     }
 
     // check if we are already showing the correct hoverMarker
     let target = Math.floor(evt.pos.x);
-    if(this.hoverTarget && this.hoverTarget === target) {
+    if (this.hoverTarget && this.hoverTarget === target) {
       return;
     }
 
     // check for initial show of the marker
-    if(this.hoverTarget == null) {
+    if (this.hoverTarget == null) {
       this.hoverMarker.addTo(this.leafMap);
     }
 
@@ -119,12 +119,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let max = this.coords.length - 1;
     let idx = null;
     let exact = false;
-    while(min <= max) {
+    while (min <= max) {
       idx = Math.floor((max + min) / 2);
-      if(this.coords[idx].timestamp === this.hoverTarget) {
+      if (this.coords[idx].timestamp === this.hoverTarget) {
         exact = true;
         break;
-      } else if(this.coords[idx].timestamp < this.hoverTarget) {
+      } else if (this.coords[idx].timestamp < this.hoverTarget) {
         min = idx + 1;
       } else {
         max = idx - 1;
@@ -132,7 +132,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
 
     // Correct the case where we are +1 index off
-    if(!exact && idx > 0 && this.coords[idx].timestamp > this.hoverTarget) {
+    if (!exact && idx > 0 && this.coords[idx].timestamp > this.hoverTarget) {
       idx--;
     }
     this.hoverMarker.setLatLng(this.coords[idx].position);
@@ -142,7 +142,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("onPanelClear");
     // clear the highlighted circle
     this.hoverTarget = null;
-    if(this.hoverMarker) {
+    if (this.hoverMarker) {
       this.hoverMarker.removeFrom(this.leafMap);
     }
   }
@@ -162,7 +162,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.$timeout.cancel(this.setSizePromise);
     let map = this.leafMap;
     this.setSizePromise = this.$timeout(function() {
-      if(map) {
+      if (map) {
         log("Invalidating map size");
         map.invalidateSize(true);
       }
@@ -171,8 +171,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   applyScrollZoom() {
     let enabled = this.leafMap.scrollWheelZoom.enabled();
-    if(enabled != this.panel.scrollWheelZoom) {
-      if(enabled) {
+    if (enabled != this.panel.scrollWheelZoom) {
+      if (enabled) {
         this.leafMap.scrollWheelZoom.disable();
       } else {
         this.leafMap.scrollWheelZoom.enable();
@@ -184,7 +184,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let hadMap = Boolean(this.leafMap);
     this.setupMap();
     // Only need to re-add layers if the map previously existed
-    if(hadMap) {
+    if (hadMap) {
       this.leafMap.eachLayer((layer) => {
         layer.removeFrom(this.leafMap);
       });
@@ -196,8 +196,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   setupMap() {
     log("setupMap");
     // Create the map or get it back in a clean state if it already exists
-    if(this.leafMap) {
-      if(this.polyline) {
+    if (this.leafMap) {
+      if (this.polyline) {
         this.polyline.removeFrom(this.leafMap);
       }
       this.onPanelClear();
@@ -234,12 +234,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   mapBaseLayerChange(e) {
     // If a tileLayer has a 'forcedOverlay' attribute, always enable/disable it
     // along with the layer
-    if(this.leafMap.forcedOverlay) {
+    if (this.leafMap.forcedOverlay) {
       this.leafMap.forcedOverlay.removeFrom(this.leafMap);
       this.leafMap.forcedOverlay = null;
     }
     let overlay = e.layer.options.forcedOverlay;
-    if(overlay) {
+    if (overlay) {
       overlay.addTo(this.leafMap);
       overlay.setZIndex(e.layer.options.zIndex + 1);
       this.leafMap.forcedOverlay = overlay;
@@ -251,7 +251,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Find time bounds of selected coordinates
     const bounds = this.coords.reduce(
       function(t, c) {
-        if(e.boxZoomBounds.contains(c.position)) {
+        if (e.boxZoomBounds.contains(c.position)) {
           t.from = Math.min(t.from, c.timestamp);
           t.to = Math.max(t.to, c.timestamp);
         }
@@ -263,7 +263,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     );
 
     // Set the global time range
-    if(isFinite(bounds.from) && isFinite(bounds.to)) {
+    if (isFinite(bounds.from) && isFinite(bounds.to)) {
       // KLUDGE: Create moment objects here to avoid a TypeError that
       //         occurs when Grafana processes normal numbers
       this.timeSrv.setTime({
@@ -288,7 +288,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   zoomToFit() {
     log("zoomToFit");
-    if(this.panel.autoZoom && this.polyline) {
+    if (this.panel.autoZoom && this.polyline) {
       this.leafMap.fitBounds(this.polyline.getBounds());
     }
     this.render();
@@ -296,12 +296,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   refreshColors() {
     log("refreshColors");
-    if(this.polyline) {
+    if (this.polyline) {
       this.polyline.setStyle({
         color: this.panel.lineColor
       });
     }
-    if(this.hoverMarker) {
+    if (this.hoverMarker) {
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
       });
@@ -313,7 +313,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("onDataReceived");
     this.setupMap();
 
-    if(data.length === 0 || data.length !== 2) {
+    if (data.length === 0 || data.length !== 2) {
       // No data or incorrect data, show a world map and abort
       this.leafMap.setView([0, 0], 1);
       return;
@@ -324,8 +324,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.coords.length = 0;
     const lats = data[0].datapoints;
     const lons = data[1].datapoints;
-    for(let i = 0; i < lats.length; i++) {
-      if(lats[i][0] == null || lons[i][0] == null ||
+    for (let i = 0; i < lats.length; i++) {
+      if (lats[i][0] == null || lons[i][0] == null ||
         lats[i][1] !== lons[i][1]) {
         continue;
       }
@@ -349,11 +349,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     var map = this.leafMap;
 
     // Remove previous overlay
-    if(this.panel.geoJsonObject != null) {
+    if (this.panel.geoJsonObject != null) {
       this.panel.geoJsonObject.removeFrom(map);
     }
 
-    if(this.panel.geoJsonText == "") {
+    if (this.panel.geoJsonText == "") {
       this.panel.geoJsonText = null;
       return;
     }
@@ -406,7 +406,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   saveGeoJsonText() {
     log("saveGeoJsonText");
 
-    if(this.panel.geoJsonObject == null || this.panel.geoJsonText == "") return;
+    if (this.panel.geoJsonObject == null || this.panel.geoJsonText == "") return;
 
     this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
     this.panel.geoJsonText = "";
@@ -436,7 +436,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   deleteOverlay(overlay) {
     log("deleteOverlay");
 
-    if(overlay != null) {
+    if (overlay != null) {
       overlay.removeFrom(this.leafMap);
       this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(o => o !== overlay);
     }
