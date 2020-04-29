@@ -443,6 +443,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   addOverlayToMap(text, addToList) {
     log("addOverlayToMap");
 
+    if (text == "") {
+      throw new Error("Tried adding an empty overlay")
+    }
+
     try {
       // Parse new overlay
       var geojson = JSON.parse(text);
