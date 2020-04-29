@@ -400,7 +400,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("downloadOverlay");
 
     let element = document.createElement('a');
-    let text = this.sonToString(overlay);
+    let text = this.overlayToString(overlay);
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', 'overlay-' + overlay._leaflet_id + '.json');
 
@@ -432,8 +432,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
-  jsonToString(overlay) {
+  overlayToString(overlay) {
     return JSON.stringify(overlay.toGeoJSON(), null, "  ");
+  }
+
+  jsonToString(jsonObject) {
+    return JSON.stringify(jsonObject, null, "  ");
   }
 
   addOverlayToMap(text, addToList) {
