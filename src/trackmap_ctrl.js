@@ -450,18 +450,20 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     try {
       // Parse new overlay
       var geojson = JSON.parse(text);
-      // Save new overlay
-      this.panel.geoJsonObject = L.geoJson(geojson);
-      // Add new overlay
-      this.panel.geoJsonObject.addTo(this.leafMap);
-      // Add to list
-      if (addToList) {
-        this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
-        this.panel.geoJsonObject = null;
-        this.$scope.$apply();
-      }
     } catch (e) {
       console.error("Parsing error: ", e);
+      return;
+    }
+    
+    // Save new overlay
+    this.panel.geoJsonObject = L.geoJson(geojson);
+    // Add new overlay
+    this.panel.geoJsonObject.addTo(this.leafMap);
+    // Add to list
+    if (addToList) {
+      this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+      this.panel.geoJsonObject = null;
+      this.$scope.$apply();
     }
   }
 
