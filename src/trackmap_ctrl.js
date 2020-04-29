@@ -161,7 +161,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     //         size invalidation until after the panel has actually been resized.
     this.$timeout.cancel(this.setSizePromise);
     let map = this.leafMap;
-    this.setSizePromise = this.$timeout(function() {
+    this.setSizePromise = this.$timeout(function () {
       if (map) {
         log("Invalidating map size");
         map.invalidateSize(true);
@@ -250,16 +250,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("mapZoomToBox");
     // Find time bounds of selected coordinates
     const bounds = this.coords.reduce(
-      function(t, c) {
+      function (t, c) {
         if (e.boxZoomBounds.contains(c.position)) {
           t.from = Math.min(t.from, c.timestamp);
           t.to = Math.max(t.to, c.timestamp);
         }
         return t;
       }, {
-        from: Infinity,
-        to: -Infinity
-      }
+      from: Infinity,
+      to: -Infinity
+    }
     );
 
     // Set the global time range
@@ -278,9 +278,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("addDataToMap");
     this.polyline = L.polyline(
       this.coords.map(x => x.position, this), {
-        color: this.panel.lineColor,
-        weight: 3,
-      }
+      color: this.panel.lineColor,
+      weight: 3,
+    }
     ).addTo(this.leafMap);
 
     this.zoomToFit();
@@ -401,7 +401,6 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     let element = document.createElement('a');
     let text = this.sonToString(overlay);
-    // var text = JSON.stringify(overlay.toGeoJSON());
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', 'overlay.json'); // TODO change to overlay name
 
@@ -413,13 +412,15 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     document.body.removeChild(element);
   }
 
+  // TODO: does not work yet
   editOverlay(overlay) {
     log("editOverlay");
 
-    document.getElementById('overlayTextarea').dataset.edit = "true";
-    this.panel.geoJsonText = this.jsonToString(overlay);
-    document.getElementById("overlayTextarea").value = this.panel.geoJsonText;
+    this.panel.geoJsonText = this.overlayToString(overlay);
     this.panel.geoJsonObject = overlay;
+
+    document.getElementById('overlayTextarea').dataset.edit = "true";
+    document.getElementById("overlayTextarea").value = this.panel.geoJsonText;
   }
 
   deleteOverlay(overlay) {
@@ -436,14 +437,15 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   addOverlayToMap(text, addToList) {
-    let map = this.leafMap;
+    log("addOverlayToMap");
+
     try {
       // Parse new overlay
       var geojson = JSON.parse(text);
       // Save new overlay
       this.panel.geoJsonObject = L.geoJson(geojson);
       // Add new overlay
-      this.panel.geoJsonObject.addTo(map);
+      this.panel.geoJsonObject.addTo(this.leafMap);
       // Add to list
       if (addToList) {
         this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
