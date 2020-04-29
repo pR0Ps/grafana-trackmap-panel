@@ -402,7 +402,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let element = document.createElement('a');
     let text = this.sonToString(overlay);
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', 'overlay.json'); // TODO change to overlay name
+    element.setAttribute('download', 'overlay-' + overlay._leaflet_id + '.json');
 
     element.style.display = 'none';
     document.body.appendChild(element);
