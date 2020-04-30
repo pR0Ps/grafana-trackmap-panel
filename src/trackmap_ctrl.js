@@ -358,7 +358,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       return;
     }
 
-    this.addOverlayToMap(this.panel.geoJsonText, false);
+    this.addOverlayToMap(this.panel.geoJsonText);
   }
 
   HandleFileButtonClick() {
@@ -375,7 +375,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let uploadFile = document.getElementById('file').files[0];
     let reader = new FileReader();
     reader.onload = (e) => {
-      this.addOverlayToMap(e.target.result, true);
+      this.addOverlayToMap(e.target.result);
+      this.addCurrentOverlayToList();
+      this.$scope.$apply();
     };
 
     reader.readAsText(uploadFile);
@@ -388,7 +390,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     let overlayTextarea = document.getElementById('overlayTextarea');
     if (overlayTextarea.dataset.edit == "false") {
-      this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+      this.addCurrentOverlayToList();
     } else {
       overlayTextarea.dataset.edit = "false";
     }
@@ -440,11 +442,30 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     return JSON.stringify(jsonObject, null, "  ");
   }
 
-  addOverlayToMap(text, addToList) {
+  addOverlayToMap(text) {
     log("addOverlayToMap");
 
+    var geojson = this.parseToGeoJson(text);
+
+    // Save new overlay
+    this.panel.geoJsonObject = L.geoJson(geojson);
+    // Add new overlay
+    this.panel.geoJsonObject.addTo(this.leafMap);
+  }
+
+  addCurrentOverlayToList() {
+    log("addCurrentOverlayToList");
+
+    // Add to list
+    this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
+    this.panel.geoJsonObject = null;
+  }
+
+  parseToGeoJson(text) {
+    log("parseToGeoJson");
+
     if (text == "") {
-      throw new Error("Tried adding an empty overlay")
+      throw new Error("Tried parsing an empty text to GeoJSON")
     }
 
     try {
@@ -452,19 +473,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       var geojson = JSON.parse(text);
     } catch (e) {
       console.error("Parsing error: ", e);
-      return;
+      return null;
     }
-    
-    // Save new overlay
-    this.panel.geoJsonObject = L.geoJson(geojson);
-    // Add new overlay
-    this.panel.geoJsonObject.addTo(this.leafMap);
-    // Add to list
-    if (addToList) {
-      this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
-      this.panel.geoJsonObject = null;
-      this.$scope.$apply();
-    }
+
+    return geojson;
   }
 
 }
