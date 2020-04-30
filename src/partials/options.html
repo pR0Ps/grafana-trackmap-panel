@@ -43,7 +43,7 @@
       </form>
     </div>
     <div class="gf-form">
-      <textarea id="overlayTextarea" data-edit="false" style="resize: both" class="gf-form-input" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy and paste your GeoJSON file here.' ng-change="ctrl.importGeoJsonText()"></textarea>
+      <textarea id="geoJsonTextarea" data-edit="false" style="resize: both" class="gf-form-input" ng-model="ctrl.panel.geoJsonText" spellcheck='false' placeholder='Copy and paste your GeoJSON file here.' ng-change="ctrl.updateGeoJsonText()"></textarea>
     </div>
     <button class="btn btn-inverse" ng-click="ctrl.saveGeoJsonText()">
       <i class="fa fa-save"></i>&nbsp;Save</button>
@@ -53,16 +53,16 @@
     <h5 class="section-heading">Overlay list ({{ctrl.panel.geoJsonObjectList.length}})</h5>
     <div class="gf-form">
       <ul style="list-style-type:none">
-        <li ng-repeat="overlay in ctrl.panel.geoJsonObjectList">
+        <li ng-repeat="geoJsonObject in ctrl.panel.geoJsonObjectList">
           <label class="gf-form-label" style="display: inline">
             <!-- <i class="fa fa-ellipsis-v"></i>&nbsp; -->
-            Overlay {{overlay._leaflet_id}}
+            Overlay {{geoJsonObject._leaflet_id}}
           </label>
-          <button data-toggle="tooltip" title="Download this overlay" class="btn btn-inverse" ng-click="ctrl.downloadOverlay(overlay)">
+          <button data-toggle="tooltip" title="Download this overlay" class="btn btn-inverse" ng-click="ctrl.downloadGeoJsonObject(geoJsonObject)">
             <i class="fa fa-download"></i></button>
-          <!-- <button data-toggle="tooltip" title="Edit this overlay" class="btn btn-inverse" ng-click="ctrl.editOverlay(overlay)">
+          <!-- <button data-toggle="tooltip" title="Edit this overlay" class="btn btn-inverse" ng-click="ctrl.editGeoJsonObject(geoJsonObject)">
             <i class="fa fa-edit"></i></button> -->
-          <button data-toggle="tooltip" title="Delete this overlay" class="btn btn-inverse" ng-click="ctrl.deleteOverlay(overlay)">
+          <button data-toggle="tooltip" title="Delete this overlay" class="btn btn-inverse" ng-click="ctrl.deleteGeoJsonObject(geoJsonObject)">
             <i class="fa fa-trash"></i></button>
         </li>
       </ul>

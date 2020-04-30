@@ -343,14 +343,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.onDataReceived(snapshotData);
   }
 
-  importGeoJsonText() {
-    log("importGeoJsonText");
+  updateGeoJsonText() {
+    log("updateGeoJsonText");
 
-    let map = this.leafMap;
-
-    // Remove previous overlay
+    // Remove previous overlay from the map
     if (this.panel.geoJsonObject != null) {
-      this.panel.geoJsonObject.removeFrom(map);
+      this.panel.geoJsonObject.removeFrom(this.leafMap);
     }
 
     if (this.panel.geoJsonText == "") {
@@ -366,12 +364,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     document.getElementById('file').onchange = () => {
       const path = document.frmUpload.file.value.split("\\");
       document.frmUpload.fileName.value = path[path.length - 1];
-      this.importFile();
+      this.importGeoJsonFile();
     };
   }
 
-  importFile() {
-    log("importFile");
+  importGeoJsonFile() {
+    log("importGeoJsonFile");
     let uploadFile = document.getElementById('file').files[0];
     let reader = new FileReader();
     reader.onload = (e) => {
@@ -388,23 +386,23 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     if (this.panel.geoJsonObject == null || this.panel.geoJsonText == "") return;
 
-    let overlayTextarea = document.getElementById('overlayTextarea');
-    if (overlayTextarea.dataset.edit == "false") {
+    let geoJsonTextarea = document.getElementById('geoJsonTextarea');
+    if (geoJsonTextarea.dataset.edit == "false") {
       this.addCurrentOverlayToList();
     } else {
-      overlayTextarea.dataset.edit = "false";
+      geoJsonTextarea.dataset.edit = "false";
     }
     this.panel.geoJsonText = "";
     this.panel.geoJsonObject = null;
   }
 
-  downloadOverlay(overlay) {
-    log("downloadOverlay");
+  downloadGeoJsonObject(geoJsonObject) {
+    log("downloadGeoJsonObject");
 
     let element = document.createElement('a');
-    let text = this.overlayToString(overlay);
+    let text = this.overlayToString(geoJsonObject);
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', 'overlay-' + overlay._leaflet_id + '.json');
+    element.setAttribute('download', 'overlay-' + geoJsonObject._leaflet_id + '.json');
 
     element.style.display = 'none';
     document.body.appendChild(element);
@@ -415,22 +413,22 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   }
 
   // TODO: does not work yet
-  editOverlay(overlay) {
-    log("editOverlay");
+  editGeoJsonObject(geoJsonObject) {
+    log("editGeoJsonObject");
 
-    this.panel.geoJsonText = this.overlayToString(overlay);
-    this.panel.geoJsonObject = overlay;
+    this.panel.geoJsonText = this.overlayToString(geoJsonObject);
+    this.panel.geoJsonObject = geoJsonObject;
 
-    document.getElementById('overlayTextarea').dataset.edit = "true";
-    document.getElementById("overlayTextarea").value = this.panel.geoJsonText;
+    document.getElementById('geoJsonTextarea').dataset.edit = "true";
+    document.getElementById('geoJsonTextarea').value = this.panel.geoJsonText;
   }
 
-  deleteOverlay(overlay) {
-    log("deleteOverlay");
+  deleteGeoJsonObject(geoJsonObject) {
+    log("deleteGeoJsonObject");
 
-    if (overlay != null) {
-      overlay.removeFrom(this.leafMap);
-      this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(o => o !== overlay);
+    if (geoJsonObject != null) {
+      geoJsonObject.removeFrom(this.leafMap);
+      this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(g => g !== geoJsonObject);
     }
   }
 
@@ -445,14 +443,15 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   addOverlayToMap(text) {
     log("addOverlayToMap");
 
-    var geojson = this.parseToGeoJson(text);
+    var geoJsonParsed = this.parseToGeoJson(text);
 
     // Save new overlay
-    this.panel.geoJsonObject = L.geoJson(geojson);
+    var geoJsonLeaflet = L.geoJson(geoJsonParsed);
+    this.panel.geoJsonObject = geoJsonLeaflet;
     // Add overlay popups
-    this.addOverlayPopups(geojson);
+    this.addOverlayPopups(geoJsonParsed);
     // Add new overlay
-    this.panel.geoJsonObject.addTo(this.leafMap);
+    geoJsonLeaflet.addTo(this.leafMap);
   }
 
   addCurrentOverlayToList() {
@@ -466,7 +465,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   addOverlayPopups(geojson) {
     // Create the string for the popup with the geojson properties
     var st = '';
-    for(var p in geojson.features[0].properties) {
+    for (var p in geojson.features[0].properties) {
       st = st.concat(p + ': ' + geojson.features[0].properties[p] + '<br>');
     }
     // Add new overlay and popup
