@@ -449,6 +449,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // Save new overlay
     this.panel.geoJsonObject = L.geoJson(geojson);
+    // Add overlay popups
+    this.addOverlayPopups(geojson);
     // Add new overlay
     this.panel.geoJsonObject.addTo(this.leafMap);
   }
@@ -459,6 +461,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Add to list
     this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
     this.panel.geoJsonObject = null;
+  }
+
+  addOverlayPopups(geojson) {
+    // Create the string for the popup with the geojson properties
+    var st = '';
+    for(var p in geojson.features[0].properties) {
+      st = st.concat(p + ': ' + geojson.features[0].properties[p] + '<br>');
+    }
+    // Add new overlay and popup
+    this.panel.geoJsonObject.bindPopup(st).addTo(this.leafMap);
   }
 
   parseToGeoJson(text) {
