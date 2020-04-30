@@ -50,13 +50,13 @@
   </div>
 
   <div class="section gf-form-group">
-    <h5 class="section-heading">Overlay list ({{ctrl.panel.geoJsonObjectList.length}})</h5>
+    <h5 class="section-heading">Overlay list ({{ctrl.geoJsonObjectList.length}})</h5>
     <div class="gf-form">
       <ul style="list-style-type:none">
-        <li ng-repeat="geoJsonObject in ctrl.panel.geoJsonObjectList">
+          <li ng-repeat="geoJsonObject in ctrl.geoJsonObjectList">
           <label class="gf-form-label" style="display: inline">
             <!-- <i class="fa fa-ellipsis-v"></i>&nbsp; -->
-            Overlay {{geoJsonObject._leaflet_id}}
+            Overlay {{geoJsonObject.name}}
           </label>
           <button data-toggle="tooltip" title="Download this overlay" class="btn btn-inverse" ng-click="ctrl.downloadGeoJsonObject(geoJsonObject)">
             <i class="fa fa-download"></i></button>

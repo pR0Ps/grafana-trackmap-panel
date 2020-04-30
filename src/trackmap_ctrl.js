@@ -9,19 +9,6 @@ import {
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
 
-const panelDefaults = {
-  maxDataPoints: 500,
-  autoZoom: true,
-  scrollWheelZoom: false,
-  defaultLayer: 'OpenStreetMap',
-  lineColor: 'red',
-  pointColor: 'royalblue',
-  geoJsonFile: 'test.json',
-  geoJsonText: '{}',
-  geoJsonObject: null,
-  geoJsonObjectList: []
-}
-
 function log(msg) {
   // uncomment for debugging
   //console.log(msg);
@@ -33,7 +20,19 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     log("constructor");
 
-    _.defaults(this.panel, panelDefaults);
+    _.defaults(this.panel, {
+      maxDataPoints: 500,
+      autoZoom: true,
+      scrollWheelZoom: false,
+      defaultLayer: 'OpenStreetMap',
+      lineColor: 'red',
+      pointColor: 'royalblue',
+      geoJsonFile: 'test.json',
+      geoJsonText: '',
+      geoJsonObject: null,
+      geoJsonList: []
+    }
+    );
 
     // Save layers globally in order to use them in options
     this.layers = {
@@ -76,6 +75,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Global events
     appEvents.on('graph-hover', this.onPanelHover.bind(this));
     appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
+
+    // Geojson overlays lists
+    this.geoJsonObjectList = [];
+    this.geoJsonLeaflet = null;
+    this.geoJsonLeafletList = [];
   }
 
   onInitialized() {
@@ -229,6 +233,15 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Events
     this.leafMap.on('baselayerchange', this.mapBaseLayerChange.bind(this));
     this.leafMap.on('boxzoomend', this.mapZoomToBox.bind(this));
+
+    // Display all saved overlays
+    for (let [key, value] of Object.entries(this.panel.geoJsonList)) {
+      this.addOverlayToMap(this.geoJsonToString(value));
+      this.geoJsonObjectList.push(this.panel.geoJsonObject);
+      this.panel.geoJsonObject = null;
+      this.geoJsonLeafletList.push(this.geoJsonLeaflet);
+      this.geoJsonLeaflet = null;
+    }
   }
 
   mapBaseLayerChange(e) {
@@ -347,8 +360,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("updateGeoJsonText");
 
     // Remove previous overlay from the map
-    if (this.panel.geoJsonObject != null) {
-      this.panel.geoJsonObject.removeFrom(this.leafMap);
+    if (this.geoJsonLeaflet != null) {
+      this.geoJsonLeaflet.leaflet.removeFrom(this.leafMap);
     }
 
     if (this.panel.geoJsonText == "") {
@@ -393,16 +406,15 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       geoJsonTextarea.dataset.edit = "false";
     }
     this.panel.geoJsonText = "";
-    this.panel.geoJsonObject = null;
   }
 
   downloadGeoJsonObject(geoJsonObject) {
     log("downloadGeoJsonObject");
 
     let element = document.createElement('a');
-    let text = this.overlayToString(geoJsonObject);
+    let text = this.geoJsonToString(geoJsonObject.parsed);
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', 'overlay-' + geoJsonObject._leaflet_id + '.json');
+    element.setAttribute('download', 'overlay-' + geoJsonObject.name + '.json');
 
     element.style.display = 'none';
     document.body.appendChild(element);
@@ -416,7 +428,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   editGeoJsonObject(geoJsonObject) {
     log("editGeoJsonObject");
 
-    this.panel.geoJsonText = this.overlayToString(geoJsonObject);
+    this.panel.geoJsonText = this.geoJsonToString(geoJsonObject.parsed);
     this.panel.geoJsonObject = geoJsonObject;
 
     document.getElementById('geoJsonTextarea').dataset.edit = "true";
@@ -427,27 +439,35 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("deleteGeoJsonObject");
 
     if (geoJsonObject != null) {
-      geoJsonObject.removeFrom(this.leafMap);
-      this.panel.geoJsonObjectList = this.panel.geoJsonObjectList.filter(g => g !== geoJsonObject);
+      // Delete overlay from the map and the lists
+      var geoJsonLeaflet = this.searchByName(geoJsonObject.name, this.geoJsonLeafletList).leaflet;
+      geoJsonLeaflet.removeFrom(this.leafMap);
+      this.geoJsonObjectList = this.geoJsonObjectList.filter(g => g.name != geoJsonObject.name);
+      this.panel.geoJsonList = [];
+      this.geoJsonObjectList.forEach(g => {
+        this.panel.geoJsonList.push(g.parsed);
+      });
     }
   }
 
-  overlayToString(overlay) {
-    return JSON.stringify(overlay.toGeoJSON(), null, "  ");
+  geoJsonLeafletToString(leaflet) {
+    return JSON.stringify(leaflet.toGeoJSON(), null, "  ");
   }
 
-  jsonToString(jsonObject) {
-    return JSON.stringify(jsonObject, null, "  ");
+  geoJsonToString(geoJsonObject) {
+    return JSON.stringify(geoJsonObject, null, "  ");
   }
 
   addOverlayToMap(text) {
     log("addOverlayToMap");
 
+    // Get new overlay
     var geoJsonParsed = this.parseToGeoJson(text);
+    var geoJsonLeaflet = L.geoJson(geoJsonParsed);
 
     // Save new overlay
-    var geoJsonLeaflet = L.geoJson(geoJsonParsed);
-    this.panel.geoJsonObject = geoJsonLeaflet;
+    this.panel.geoJsonObject = { name: geoJsonLeaflet._leaflet_id, parsed: geoJsonParsed };
+    this.geoJsonLeaflet = { name: geoJsonLeaflet._leaflet_id, leaflet: geoJsonLeaflet };
     // Add overlay popups
     this.addOverlayPopups(geoJsonParsed);
     // Add new overlay
@@ -457,9 +477,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   addCurrentOverlayToList() {
     log("addCurrentOverlayToList");
 
-    // Add to list
-    this.panel.geoJsonObjectList.push(this.panel.geoJsonObject);
-    this.panel.geoJsonObject = null;
+    // Add to lists
+    this.geoJsonObjectList.push(this.panel.geoJsonObject);
+    this.panel.geoJsonList.push(this.panel.geoJsonObject.parsed);
+    this.geoJsonLeafletList.push(this.geoJsonLeaflet);
+    this.geoJsonLeaflet = null;
   }
 
   addOverlayPopups(geojson) {
@@ -469,7 +491,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       st = st.concat(p + ': ' + geojson.features[0].properties[p] + '<br>');
     }
     // Add new overlay and popup
-    this.panel.geoJsonObject.bindPopup(st).addTo(this.leafMap);
+    this.geoJsonLeaflet.leaflet.bindPopup(st).addTo(this.leafMap);
   }
 
   parseToGeoJson(text) {
@@ -488,6 +510,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
 
     return geojson;
+  }
+
+  searchByName(name, array) {
+    for (let element of array)
+      if (element.name == name)
+        return element;
+    return null;
   }
 
 }
