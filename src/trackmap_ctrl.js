@@ -2,19 +2,12 @@ import L from './leaflet/leaflet.js';
 import moment from 'moment';
 
 import appEvents from 'app/core/app_events';
-import {MetricsPanelCtrl} from 'app/plugins/sdk';
+import {
+  MetricsPanelCtrl
+} from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
-
-const panelDefaults = {
-  maxDataPoints: 500,
-  autoZoom: true,
-  scrollWheelZoom: false,
-  defaultLayer: 'OpenStreetMap',
-  lineColor: 'red',
-  pointColor: 'royalblue',
-}
 
 function log(msg) {
   // uncomment for debugging
@@ -27,7 +20,19 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     log("constructor");
 
-    _.defaults(this.panel, panelDefaults);
+    _.defaults(this.panel, {
+      maxDataPoints: 500,
+      autoZoom: true,
+      scrollWheelZoom: false,
+      defaultLayer: 'OpenStreetMap',
+      lineColor: 'red',
+      pointColor: 'royalblue',
+      geoJsonFile: 'test.json',
+      geoJsonText: '',
+      geoJsonObject: null,
+      geoJsonList: []
+    }
+    );
 
     // Save layers globally in order to use them in options
     this.layers = {
@@ -70,9 +75,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Global events
     appEvents.on('graph-hover', this.onPanelHover.bind(this));
     appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
+
+    // Geojson overlays lists
+    this.geoJsonObjectList = [];
+    this.geoJsonLeaflet = null;
+    this.geoJsonLeafletList = [];
   }
 
-  onInitialized(){
+  onInitialized() {
     log("onInitialized");
     this.render();
   }
@@ -100,7 +110,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
 
     // check for initial show of the marker
-    if (this.hoverTarget == null){
+    if (this.hoverTarget == null) {
       this.hoverMarker.addTo(this.leafMap);
     }
 
@@ -118,11 +128,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       if (this.coords[idx].timestamp === this.hoverTarget) {
         exact = true;
         break;
-      }
-      else if (this.coords[idx].timestamp < this.hoverTarget) {
+      } else if (this.coords[idx].timestamp < this.hoverTarget) {
         min = idx + 1;
-      }
-      else {
+      } else {
         max = idx - 1;
       }
     }
@@ -143,7 +151,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
-  onViewModeChanged(){
+  onViewModeChanged() {
     log("onViewModeChanged");
     // KLUDGE: When the view mode is changed, panel resize events are not
     //         emitted even if the panel was resized. Work around this by telling
@@ -157,21 +165,20 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     //         size invalidation until after the panel has actually been resized.
     this.$timeout.cancel(this.setSizePromise);
     let map = this.leafMap;
-    this.setSizePromise = this.$timeout(function(){
+    this.setSizePromise = this.$timeout(function () {
       if (map) {
         log("Invalidating map size");
         map.invalidateSize(true);
-      }}, 500
-    );
+      }
+    }, 500);
   }
 
   applyScrollZoom() {
     let enabled = this.leafMap.scrollWheelZoom.enabled();
-    if (enabled != this.panel.scrollWheelZoom){
-      if (enabled){
+    if (enabled != this.panel.scrollWheelZoom) {
+      if (enabled) {
         this.leafMap.scrollWheelZoom.disable();
-      }
-      else{
+      } else {
         this.leafMap.scrollWheelZoom.enable();
       }
     }
@@ -181,7 +188,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let hadMap = Boolean(this.leafMap);
     this.setupMap();
     // Only need to re-add layers if the map previously existed
-    if (hadMap){
+    if (hadMap) {
       this.leafMap.eachLayer((layer) => {
         layer.removeFrom(this.leafMap);
       });
@@ -226,6 +233,15 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Events
     this.leafMap.on('baselayerchange', this.mapBaseLayerChange.bind(this));
     this.leafMap.on('boxzoomend', this.mapZoomToBox.bind(this));
+
+    // Display all saved overlays
+    for (let [key, value] of Object.entries(this.panel.geoJsonList)) {
+      this.addOverlayToMap(this.geoJsonToString(value));
+      this.geoJsonObjectList.push(this.panel.geoJsonObject);
+      this.panel.geoJsonObject = null;
+      this.geoJsonLeafletList.push(this.geoJsonLeaflet);
+      this.geoJsonLeaflet = null;
+    }
   }
 
   mapBaseLayerChange(e) {
@@ -247,14 +263,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("mapZoomToBox");
     // Find time bounds of selected coordinates
     const bounds = this.coords.reduce(
-      function(t, c) {
+      function (t, c) {
         if (e.boxZoomBounds.contains(c.position)) {
           t.from = Math.min(t.from, c.timestamp);
           t.to = Math.max(t.to, c.timestamp);
         }
         return t;
-      },
-      {from: Infinity, to: -Infinity}
+      }, {
+      from: Infinity,
+      to: -Infinity
+    }
     );
 
     // Set the global time range
@@ -273,17 +291,17 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("addDataToMap");
     this.polyline = L.polyline(
       this.coords.map(x => x.position, this), {
-        color: this.panel.lineColor,
-        weight: 3,
-      }
+      color: this.panel.lineColor,
+      weight: 3,
+    }
     ).addTo(this.leafMap);
 
     this.zoomToFit();
   }
 
-  zoomToFit(){
+  zoomToFit() {
     log("zoomToFit");
-    if (this.panel.autoZoom && this.polyline){
+    if (this.panel.autoZoom && this.polyline) {
       this.leafMap.fitBounds(this.polyline.getBounds());
     }
     this.render();
@@ -296,7 +314,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         color: this.panel.lineColor
       });
     }
-    if (this.hoverMarker){
+    if (this.hoverMarker) {
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
       });
@@ -321,7 +339,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     const lons = data[1].datapoints;
     for (let i = 0; i < lats.length; i++) {
       if (lats[i][0] == null || lons[i][0] == null ||
-          lats[i][1] !== lons[i][1]) {
+        lats[i][1] !== lons[i][1]) {
         continue;
       }
 
@@ -337,6 +355,170 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("onSnapshotLoad");
     this.onDataReceived(snapshotData);
   }
+
+  updateGeoJsonText() {
+    log("updateGeoJsonText");
+
+    // Remove previous overlay from the map
+    if (this.geoJsonLeaflet != null) {
+      this.geoJsonLeaflet.leaflet.removeFrom(this.leafMap);
+    }
+
+    if (this.panel.geoJsonText == "") {
+      this.panel.geoJsonText = null;
+      return;
+    }
+
+    this.addOverlayToMap(this.panel.geoJsonText);
+  }
+
+  HandleFileButtonClick() {
+    document.frmUpload.file.click();
+    document.getElementById('file').onchange = () => {
+      const path = document.frmUpload.file.value.split("\\");
+      document.frmUpload.fileName.value = path[path.length - 1];
+      this.importGeoJsonFile();
+    };
+  }
+
+  importGeoJsonFile() {
+    log("importGeoJsonFile");
+    let uploadFile = document.getElementById('file').files[0];
+    let reader = new FileReader();
+    reader.onload = (e) => {
+      this.addOverlayToMap(e.target.result);
+      this.addCurrentOverlayToList();
+      this.$scope.$apply();
+    };
+
+    reader.readAsText(uploadFile);
+  }
+
+  saveGeoJsonText() {
+    log("saveGeoJsonText");
+
+    if (this.panel.geoJsonObject == null || this.panel.geoJsonText == "") return;
+
+    let geoJsonTextarea = document.getElementById('geoJsonTextarea');
+    if (geoJsonTextarea.dataset.edit == "false") {
+      this.addCurrentOverlayToList();
+    } else {
+      geoJsonTextarea.dataset.edit = "false";
+    }
+    this.panel.geoJsonText = "";
+  }
+
+  downloadGeoJsonObject(geoJsonObject) {
+    log("downloadGeoJsonObject");
+
+    let element = document.createElement('a');
+    let text = this.geoJsonToString(geoJsonObject.parsed);
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', 'overlay-' + geoJsonObject.name + '.json');
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
+  // TODO: does not work yet
+  editGeoJsonObject(geoJsonObject) {
+    log("editGeoJsonObject");
+
+    this.panel.geoJsonText = this.geoJsonToString(geoJsonObject.parsed);
+    this.panel.geoJsonObject = geoJsonObject;
+
+    document.getElementById('geoJsonTextarea').dataset.edit = "true";
+    document.getElementById('geoJsonTextarea').value = this.panel.geoJsonText;
+  }
+
+  deleteGeoJsonObject(geoJsonObject) {
+    log("deleteGeoJsonObject");
+
+    if (geoJsonObject != null) {
+      // Delete overlay from the map and the lists
+      var geoJsonLeaflet = this.searchByName(geoJsonObject.name, this.geoJsonLeafletList).leaflet;
+      geoJsonLeaflet.removeFrom(this.leafMap);
+      this.geoJsonObjectList = this.geoJsonObjectList.filter(g => g.name != geoJsonObject.name);
+      this.panel.geoJsonList = [];
+      this.geoJsonObjectList.forEach(g => {
+        this.panel.geoJsonList.push(g.parsed);
+      });
+    }
+  }
+
+  geoJsonLeafletToString(leaflet) {
+    return JSON.stringify(leaflet.toGeoJSON(), null, "  ");
+  }
+
+  geoJsonToString(geoJsonObject) {
+    return JSON.stringify(geoJsonObject, null, "  ");
+  }
+
+  addOverlayToMap(text) {
+    log("addOverlayToMap");
+
+    // Get new overlay
+    var geoJsonParsed = this.parseToGeoJson(text);
+    var geoJsonLeaflet = L.geoJson(geoJsonParsed);
+
+    // Save new overlay
+    this.panel.geoJsonObject = { name: geoJsonLeaflet._leaflet_id, parsed: geoJsonParsed };
+    this.geoJsonLeaflet = { name: geoJsonLeaflet._leaflet_id, leaflet: geoJsonLeaflet };
+    // Add overlay popups
+    this.addOverlayPopups(geoJsonParsed);
+    // Add new overlay
+    geoJsonLeaflet.addTo(this.leafMap);
+  }
+
+  addCurrentOverlayToList() {
+    log("addCurrentOverlayToList");
+
+    // Add to lists
+    this.geoJsonObjectList.push(this.panel.geoJsonObject);
+    this.panel.geoJsonList.push(this.panel.geoJsonObject.parsed);
+    this.geoJsonLeafletList.push(this.geoJsonLeaflet);
+    this.geoJsonLeaflet = null;
+  }
+
+  addOverlayPopups(geojson) {
+    // Create the string for the popup with the geojson properties
+    var st = '';
+    for (var p in geojson.features[0].properties) {
+      st = st.concat(p + ': ' + geojson.features[0].properties[p] + '<br>');
+    }
+    // Add new overlay and popup
+    this.geoJsonLeaflet.leaflet.bindPopup(st).addTo(this.leafMap);
+  }
+
+  parseToGeoJson(text) {
+    log("parseToGeoJson");
+
+    if (text == "") {
+      throw new Error("Tried parsing an empty text to GeoJSON")
+    }
+
+    try {
+      // Parse new overlay
+      var geojson = JSON.parse(text);
+    } catch (e) {
+      console.error("Parsing error: ", e);
+      return null;
+    }
+
+    return geojson;
+  }
+
+  searchByName(name, array) {
+    for (let element of array)
+      if (element.name == name)
+        return element;
+    return null;
+  }
+
 }
 
 TrackMapCtrl.templateUrl = 'partials/module.html';
