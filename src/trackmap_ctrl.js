@@ -284,7 +284,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   zoomToFit(){
     log("zoomToFit");
     if (this.panel.autoZoom && this.polyline){
-      this.leafMap.fitBounds(this.polyline.getBounds());
+      var bounds = this.polyline.getBounds();
+      if (bounds.isValid()){
+        this.leafMap.fitBounds(bounds);
+      }
+      else {
+        this.leafMap.setView([0, 0], 1);
+      }
     }
     this.render();
   }
