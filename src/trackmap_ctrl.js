@@ -7,14 +7,6 @@ import {MetricsPanelCtrl} from 'app/plugins/sdk';
 import './leaflet/leaflet.css!';
 import './partials/module.css!';
 
-const panelDefaults = {
-  maxDataPoints: 500,
-  autoZoom: true,
-  scrollWheelZoom: false,
-  defaultLayer: 'OpenStreetMap',
-  lineColor: 'red',
-  pointColor: 'royalblue',
-}
 
 function log(msg) {
   // uncomment for debugging
@@ -27,7 +19,15 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     log("constructor");
 
-    _.defaults(this.panel, panelDefaults);
+    _.defaults(this.panel, {
+      maxDataPoints: 500,
+      autoZoom: true,
+      scrollWheelZoom: false,
+      defaultLayer: 'OpenStreetMap',
+      showLayerChanger: true,
+      lineColor: 'red',
+      pointColor: 'royalblue',
+    });
 
     // Save layers globally in order to use them in options
     this.layers = {
@@ -53,6 +53,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.timeSrv = $injector.get('timeSrv');
     this.coords = [];
     this.leafMap = null;
+    this.layerChanger = null;
     this.polyline = null;
     this.hoverMarker = null;
     this.hoverTarget = null;
@@ -180,12 +181,18 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   applyDefaultLayer() {
     let hadMap = Boolean(this.leafMap);
     this.setupMap();
-    // Only need to re-add layers if the map previously existed
     if (hadMap){
+      // Re-add the default layer
       this.leafMap.eachLayer((layer) => {
         layer.removeFrom(this.leafMap);
       });
       this.layers[this.panel.defaultLayer].addTo(this.leafMap);
+
+      // Hide/show the layer switcher
+      this.leafMap.removeControl(this.layerChanger)
+      if (this.panel.showLayerChanger){
+        this.leafMap.addControl(this.layerChanger);
+      }
     }
     this.addDataToMap();
   }
@@ -208,8 +215,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       zoomDelta: 1,
     });
 
+    // Create the layer changer
+    this.layerChanger = L.control.layers(this.layers)
+
     // Add layers to the control widget
-    L.control.layers(this.layers).addTo(this.leafMap);
+    if (this.panel.showLayerChanger){
+      this.leafMap.addControl(this.layerChanger);
+    }
 
     // Add default layer to map
     this.layers[this.panel.defaultLayer].addTo(this.leafMap);
