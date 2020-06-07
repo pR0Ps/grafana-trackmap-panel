@@ -1,5 +1,5 @@
 import L from './leaflet/leaflet.js';
-import moment, { relativeTimeThreshold } from 'moment';
+import moment from 'moment';
 
 import appEvents from 'app/core/app_events';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
