@@ -14,6 +14,7 @@ const panelDefaults = {
   defaultLayer: 'OpenStreetMap',
   lineColor: 'red',
   pointColor: 'royalblue',
+  lastPointColor: 'lime',
 }
 
 function log(msg) {
@@ -54,6 +55,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.coords = [];
     this.leafMap = null;
     this.polyline = null;
+    this.lastPoint = null;
     this.hoverMarker = null;
     this.hoverTarget = null;
     this.setSizePromise = null;
@@ -197,6 +199,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       if (this.polyline) {
         this.polyline.removeFrom(this.leafMap);
       }
+      if (this.lastPoint) {
+        this.lastPoint.removeFrom(this.leafMap);
+      }
       this.onPanelClear();
       return;
     }
@@ -268,7 +273,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     }
   }
 
-  // Add the circles and polyline to the map
+  // Add the circles, polyline and last point to the map
   addDataToMap() {
     log("addDataToMap");
     this.polyline = L.polyline(
@@ -277,6 +282,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         weight: 3,
       }
     ).addTo(this.leafMap);
+
+    this.lastPoint = L.circleMarker(this.coords[this.coords.length - 1].position, {
+      color: 'white',
+      fillColor: this.panel.lastPointColor,
+      fillOpacity: 1,
+      weight: 2,
+      radius: 7
+    }).addTo(this.leafMap);
 
     this.zoomToFit();
   }
@@ -296,7 +309,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         color: this.panel.lineColor
       });
     }
-    if (this.hoverMarker){
+    if (this.lastPoint) {
+      this.lastPoint.setStyle({
+        fillColor: this.panel.lastPointColor,
+      });
+    }
+    if (this.hoverMarker) {
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
       });
