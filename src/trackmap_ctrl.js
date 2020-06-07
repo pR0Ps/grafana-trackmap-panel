@@ -44,6 +44,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       showLayerChanger: true,
       lineColor: 'red',
       pointColor: 'royalblue',
+      lastPointColor: 'lime',
     });
 
     // Save layers globally in order to use them in options
@@ -73,6 +74,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.leafMap = null;
     this.layerChanger = null;
     this.polylines = [];
+    this.lastPoint = null;
     this.hoverMarker = null;
     this.hoverTarget = null;
     this.setSizePromise = null;
@@ -241,6 +243,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Create the map or get it back in a clean state if it already exists
     if (this.leafMap) {
       this.polylines.forEach(p=>p.removeFrom(this.leafMap));
+      if (this.lastPoint) {
+        this.lastPoint.removeFrom(this.leafMap);
+      }
       this.onPanelClear();
       return;
     }
@@ -318,7 +323,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.render();
   }
 
-  // Add the circles and polyline(s) to the map
+  // Add the circles, polyline(s) and last point to the map
   addDataToMap() {
     log("addDataToMap");
 
@@ -334,6 +339,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         ).addTo(this.leafMap)
       );
     }
+    this.lastPoint = L.circleMarker(this.coords[this.coords.length - 1].position, {
+      color: 'white',
+      fillColor: this.panel.lastPointColor,
+      fillOpacity: 1,
+      weight: 2,
+      radius: 7
+    }).addTo(this.leafMap);
+
     this.zoomToFit();
   }
 
@@ -360,7 +373,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         color: this.panel.lineColor
       })
     });
-    if (this.hoverMarker){
+    if (this.lastPoint) {
+      this.lastPoint.setStyle({
+        fillColor: this.panel.lastPointColor,
+      });
+    }
+    if (this.hoverMarker) {
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
       });
