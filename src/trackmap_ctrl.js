@@ -44,6 +44,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       showLayerChanger: true,
       lineColor: 'red',
       pointColor: 'royalblue',
+      enableLastPoint: true,
       lastPointColor: 'lime',
     });
 
@@ -339,18 +340,27 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         ).addTo(this.leafMap)
       );
     }
-    this.lastPoint = L.circleMarker(this.coords[this.coords.length - 1].position, {
-      color: 'white',
-      fillColor: this.panel.lastPointColor,
-      fillOpacity: 1,
-      weight: 2,
-      radius: 7
-    }).addTo(this.leafMap);
+    this.updateLastPoint();
 
     this.zoomToFit();
   }
 
-  zoomToFit(){
+  updateLastPoint() {
+    if (this.panel.enableLastPoint) {
+      this.lastPoint = L.circleMarker(this.coords[this.coords.length - 1].position, {
+        color: 'white',
+        fillColor: this.panel.lastPointColor,
+        fillOpacity: 1,
+        weight: 2,
+        radius: 7,
+      }).addTo(this.leafMap);
+    } else if (this.lastPoint != null) {
+      this.lastPoint.removeFrom(this.leafMap);
+      this.lastPoint = null;
+    }
+  }
+
+  zoomToFit() {
     log("zoomToFit");
     if (this.panel.autoZoom && this.polylines.length>0){
       var bounds = this.polylines[0].getBounds();
