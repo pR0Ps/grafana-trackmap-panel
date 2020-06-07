@@ -1,5 +1,5 @@
 import L from './leaflet/leaflet.js';
-import moment, { relativeTimeThreshold } from 'moment';
+import moment from 'moment';
 
 import { LegacyGraphHoverClearEvent, LegacyGraphHoverEvent } from '@grafana/data';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
