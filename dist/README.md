@@ -38,7 +38,8 @@ This will build the currently checked out source into the `dist` folder for Graf
 
 Configuration
 -------------
-The plugin requires latitude and longitude measurements provided as floats in two separate fields.
+The plugin requires latitude and longitude measurements provided as floats in two separate fields
+formatted by Grafana as a "Time series".
 
 The following setup has been tested using InfluxDB as a data source in the case where `latitude` and
 `longitude` are stored in the `location` table. You will have customize the query for your setup

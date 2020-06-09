@@ -1,7 +1,7 @@
 System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/plugins/sdk", "./leaflet/leaflet.css!", "./partials/module.css!"], function (_export, _context) {
   "use strict";
 
-  var L, moment, appEvents, MetricsPanelCtrl, panelDefaults, TrackMapCtrl;
+  var L, moment, appEvents, MetricsPanelCtrl, TrackMapCtrl;
 
   function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -36,13 +36,6 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
     }, function (_leafletLeafletCss) {}, function (_partialsModuleCss) {}],
     execute: function () {
-      panelDefaults = {
-        maxDataPoints: 500,
-        autoZoom: true,
-        lineColor: 'red',
-        pointColor: 'royalblue'
-      };
-
       _export("TrackMapCtrl", TrackMapCtrl =
       /*#__PURE__*/
       function (_MetricsPanelCtrl) {
@@ -56,11 +49,40 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
           _this = _possibleConstructorReturn(this, _getPrototypeOf(TrackMapCtrl).call(this, $scope, $injector));
           log("constructor");
 
-          _.defaults(_this.panel, panelDefaults);
+          _.defaults(_this.panel, {
+            maxDataPoints: 500,
+            autoZoom: true,
+            scrollWheelZoom: false,
+            defaultLayer: 'OpenStreetMap',
+            showLayerChanger: true,
+            lineColor: 'red',
+            pointColor: 'royalblue'
+          }); // Save layers globally in order to use them in options
 
+
+          _this.layers = {
+            'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+              maxZoom: 19
+            }),
+            'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+              attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+              maxZoom: 17
+            }),
+            'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+              attribution: 'Imagery &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+              // This map doesn't have labels so we force a label-only layer on top of it
+              forcedOverlay: L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {
+                attribution: 'Labels by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+              })
+            })
+          };
           _this.timeSrv = $injector.get('timeSrv');
           _this.coords = [];
           _this.leafMap = null;
+          _this.layerChanger = null;
           _this.polyline = null;
           _this.hoverMarker = null;
           _this.hoverTarget = null;
@@ -78,7 +100,9 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
 
           _this.events.on('data-received', _this.onDataReceived.bind(_assertThisInitialized(_this)));
 
-          _this.events.on('data-snapshot-load', _this.onDataSnapshotLoad.bind(_assertThisInitialized(_this))); // Global events
+          _this.events.on('data-snapshot-load', _this.onDataSnapshotLoad.bind(_assertThisInitialized(_this)));
+
+          _this.events.on('render', _this.onRender.bind(_assertThisInitialized(_this))); // Global events
 
 
           appEvents.on('graph-hover', _this.onPanelHover.bind(_assertThisInitialized(_this)));
@@ -87,6 +111,26 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
         }
 
         _createClass(TrackMapCtrl, [{
+          key: "onRender",
+          value: function onRender() {
+            var _this2 = this;
+
+            log("onRender"); // Wait until there is at least one GridLayer with fully loaded
+            // tiles before calling renderingCompleted
+
+            if (this.leafMap) {
+              this.leafMap.eachLayer(function (l) {
+                if (l instanceof L.GridLayer) {
+                  if (l.isLoading()) {
+                    l.once('load', _this2.renderingCompleted.bind(_this2));
+                  } else {
+                    _this2.renderingCompleted();
+                  }
+                }
+              });
+            }
+          }
+        }, {
           key: "onInitialized",
           value: function onInitialized() {
             log("onInitialized");
@@ -122,10 +166,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
 
 
             if (this.hoverTarget == null) {
-              this.hoverMarker.bringToFront().setStyle({
-                fillColor: this.panel.pointColor,
-                color: 'white'
-              });
+              this.hoverMarker.addTo(this.leafMap);
             }
 
             this.hoverTarget = target; // Find the currently selected time and move the hoverMarker to it
@@ -156,6 +197,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
             }
 
             this.hoverMarker.setLatLng(this.coords[idx].position);
+            this.render();
           }
         }, {
           key: "onPanelClear",
@@ -165,10 +207,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
             this.hoverTarget = null;
 
             if (this.hoverMarker) {
-              this.hoverMarker.setStyle({
-                fillColor: 'none',
-                color: 'none'
-              });
+              this.hoverMarker.removeFrom(this.leafMap);
             }
           }
         }, {
@@ -196,6 +235,43 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
             }, 500);
           }
         }, {
+          key: "applyScrollZoom",
+          value: function applyScrollZoom() {
+            var enabled = this.leafMap.scrollWheelZoom.enabled();
+
+            if (enabled != this.panel.scrollWheelZoom) {
+              if (enabled) {
+                this.leafMap.scrollWheelZoom.disable();
+              } else {
+                this.leafMap.scrollWheelZoom.enable();
+              }
+            }
+          }
+        }, {
+          key: "applyDefaultLayer",
+          value: function applyDefaultLayer() {
+            var _this3 = this;
+
+            var hadMap = Boolean(this.leafMap);
+            this.setupMap();
+
+            if (hadMap) {
+              // Re-add the default layer
+              this.leafMap.eachLayer(function (layer) {
+                layer.removeFrom(_this3.leafMap);
+              });
+              this.layers[this.panel.defaultLayer].addTo(this.leafMap); // Hide/show the layer switcher
+
+              this.leafMap.removeControl(this.layerChanger);
+
+              if (this.panel.showLayerChanger) {
+                this.leafMap.addControl(this.layerChanger);
+              }
+            }
+
+            this.addDataToMap();
+          }
+        }, {
           key: "setupMap",
           value: function setupMap() {
             log("setupMap"); // Create the map or get it back in a clean state if it already exists
@@ -211,39 +287,27 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
 
 
             this.leafMap = L.map('trackmap-' + this.panel.id, {
-              scrollWheelZoom: false,
+              scrollWheelZoom: this.panel.scrollWheelZoom,
               zoomSnap: 0.5,
               zoomDelta: 1
-            }); // Define layers and add them to the control widget
+            }); // Create the layer changer
 
-            L.control.layers({
-              'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                maxZoom: 19
-              }).addTo(this.leafMap),
-              // Add default layer to map
-              'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-                maxZoom: 17
-              }),
-              'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Imagery &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                // This map doesn't have labels so we force a label-only layer on top of it
-                forcedOverlay: L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {
-                  attribution: 'Labels by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                  subdomains: 'abcd',
-                  maxZoom: 20
-                })
-              })
-            }).addTo(this.leafMap); // Dummy hovermarker
+            this.layerChanger = L.control.layers(this.layers); // Add layers to the control widget
+
+            if (this.panel.showLayerChanger) {
+              this.leafMap.addControl(this.layerChanger);
+            } // Add default layer to map
+
+
+            this.layers[this.panel.defaultLayer].addTo(this.leafMap); // Hover marker
 
             this.hoverMarker = L.circleMarker(L.latLng(0, 0), {
-              color: 'none',
-              fillColor: 'none',
+              color: 'white',
+              fillColor: this.panel.pointColor,
               fillOpacity: 1,
               weight: 2,
               radius: 7
-            }).addTo(this.leafMap); // Events
+            }); // Events
 
             this.leafMap.on('baselayerchange', this.mapBaseLayerChange.bind(this));
             this.leafMap.on('boxzoomend', this.mapZoomToBox.bind(this));
@@ -291,6 +355,8 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
                 to: moment.utc(bounds.to)
               });
             }
+
+            this.render();
           } // Add the circles and polyline to the map
 
         }, {
@@ -310,8 +376,14 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
           value: function zoomToFit() {
             log("zoomToFit");
 
-            if (this.panel.autoZoom) {
-              this.leafMap.fitBounds(this.polyline.getBounds());
+            if (this.panel.autoZoom && this.polyline) {
+              var bounds = this.polyline.getBounds();
+
+              if (bounds.isValid()) {
+                this.leafMap.fitBounds(bounds);
+              } else {
+                this.leafMap.setView([0, 0], 1);
+              }
             }
 
             this.render();
@@ -327,6 +399,12 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
               });
             }
 
+            if (this.hoverMarker) {
+              this.hoverMarker.setStyle({
+                fillColor: this.panel.pointColor
+              });
+            }
+
             this.render();
           }
         }, {
@@ -338,6 +416,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
             if (data.length === 0 || data.length !== 2) {
               // No data or incorrect data, show a world map and abort
               this.leafMap.setView([0, 0], 1);
+              this.render();
               return;
             } // Asumption is that there are an equal number of properly matched timestamps
             // TODO: proper joining by timestamp?
@@ -348,7 +427,7 @@ System.register(["./leaflet/leaflet.js", "moment", "app/core/app_events", "app/p
             var lons = data[1].datapoints;
 
             for (var i = 0; i < lats.length; i++) {
-              if (lats[i][0] == null || lons[i][0] == null || lats[i][1] !== lats[i][1]) {
+              if (lats[i][0] == null || lons[i][0] == null || lats[i][1] !== lons[i][1]) {
                 continue;
               }
 
