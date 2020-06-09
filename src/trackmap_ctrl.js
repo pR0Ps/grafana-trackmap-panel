@@ -67,10 +67,29 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.events.on('panel-size-changed', this.onPanelSizeChanged.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));
     this.events.on('data-snapshot-load', this.onDataSnapshotLoad.bind(this));
+    this.events.on('render', this.onRender.bind(this));
 
     // Global events
     appEvents.on('graph-hover', this.onPanelHover.bind(this));
     appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
+  }
+
+  onRender(){
+    log("onRender")
+    // Wait until there is at least one GridLayer with fully loaded
+    // tiles before calling renderingCompleted
+    if (this.leafMap) {
+      this.leafMap.eachLayer((l) => {
+        if (l instanceof L.GridLayer){
+          if (l.isLoading()) {
+            l.once('load', this.renderingCompleted.bind(this));
+          }
+          else {
+            this.renderingCompleted();
+          }
+        }
+      });
+    }
   }
 
   onInitialized(){
@@ -133,6 +152,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       idx--;
     }
     this.hoverMarker.setLatLng(this.coords[idx].position);
+    this.render();
   }
 
   onPanelClear(evt) {
@@ -278,6 +298,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         to: moment.utc(bounds.to)
       });
     }
+    this.render();
   }
 
   // Add the circles and polyline to the map
@@ -329,6 +350,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     if (data.length === 0 || data.length !== 2) {
       // No data or incorrect data, show a world map and abort
       this.leafMap.setView([0, 0], 1);
+      this.render();
       return;
     }
 
