@@ -27,7 +27,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       showLayerChanger: true,
       lineColor: 'red',
       pointColor: 'royalblue',
-      maxDataPointDistance: 0,
+      maxDataPointDelta: 0,
     });
 
     // Save layers globally in order to use them in options
@@ -307,18 +307,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   addDataToMap() {
     const coords = [[]];
 
-    this.coords.forEach((x, index) => {
-      const position = x.position;
+    this.coords.forEach((coord, index) => {
+      if (index !== 0 && this.panel.maxDataPointDelta !== 0){
+        const prevTimestamp = this.coords[index - 1].timestamp;
 
-      if (index !== 0 && this.panel.maxDataPointDistance !== 0){
-        const prevPosition = this.coords[index - 1].position;
-
-        if (this.leafMap.distance(position, prevPosition) > this.panel.maxDataPointDistance){
-          coords.push([]);
+        if (coord.timestamp - prevTimestamp > this.panel.maxDataPointDelta * 1000){
+          coords.push([]); // Start a new polyline
         }
       }
 
-      coords[coords.length - 1].push(position);
+      coords[coords.length - 1].push(coord.position);
     });
 
     log("addDataToMap");
