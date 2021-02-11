@@ -54,10 +54,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.coords = [];
     this.leafMap = null;
     this.layerChanger = null;
-    this.polyline = null;
+    this.polylines = [];
     this.hoverMarker = null;
     this.hoverTarget = null;
     this.setSizePromise = null;
+
+	this.manyCoords = [];
 
     // Panel events
     this.events.on('panel-initialized', this.onInitialized.bind(this));
@@ -221,9 +223,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("setupMap");
     // Create the map or get it back in a clean state if it already exists
     if (this.leafMap) {
-      if (this.polyline) {
-        this.polyline.removeFrom(this.leafMap);
-      }
+	  this.polylines.forEach(myPolyline=>myPolyline.removeFrom(this.leafMap));
       this.onPanelClear();
       return;
     }
@@ -304,20 +304,28 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
   // Add the circles and polyline to the map
   addDataToMap() {
     log("addDataToMap");
-    this.polyline = L.polyline(
-      this.coords.map(x => x.position, this), {
-        color: this.panel.lineColor,
-        weight: 3,
-      }
-    ).addTo(this.leafMap);
+	
+	this.polylines=[];
+	this.manyCoords.forEach(coords=>{
+		var myPolyline=L.polyline(
+			coords.map(x => x.position, this), {
+				color: this.panel.lineColor,
+				weight: 3,
+			}
+		).addTo(this.leafMap);
+		this.polylines.push(myPolyline);
+	});
+	
 
     this.zoomToFit();
   }
 
   zoomToFit(){
     log("zoomToFit");
-    if (this.panel.autoZoom && this.polyline){
-      var bounds = this.polyline.getBounds();
+    if (this.panel.autoZoom && this.polylines.length>0){
+		
+      var bounds = this.polylines[0].getBounds();
+	  this.polylines.forEach(myPolyline=>{bounds=bounds.extend(myPolyline.getBounds())});
       if (bounds.isValid()){
         this.leafMap.fitBounds(bounds);
       }
@@ -330,10 +338,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   refreshColors() {
     log("refreshColors");
-    if (this.polyline) {
-      this.polyline.setStyle({
-        color: this.panel.lineColor
-      });
+    if (this.polylines.length>0) {
+		polylines.forEach(myPolyline=>myPolyline.setStyle({
+							color: this.panel.lineColor
+								}));
+	  
     }
     if (this.hoverMarker){
       this.hoverMarker.setStyle({
@@ -356,6 +365,13 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // Asumption is that there are an equal number of properly matched timestamps
     // TODO: proper joining by timestamp?
+	this.manyCoords.length=0;
+	var tmpCoords=[];
+	this.manyCoords.push(tmpCoords);
+	
+	var lastLon=null;
+	var manyCoordsIdx=0;
+	
     this.coords.length = 0;
     const lats = data[0].datapoints;
     const lons = data[1].datapoints;
@@ -370,6 +386,25 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         position: L.latLng(lats[i][0], lons[i][0]),
         timestamp: lats[i][1]
       });
+	  
+	  
+		if (i>0)
+		{
+			if ( ((lastLon>90.0) && (lons[i][0]<-90.0)) ||
+				((lastLon<-90.0) && (lons[i][0]>90.0)) )
+			{
+				manyCoordsIdx++;	
+				var tmpCoords=[];
+				this.manyCoords.push(tmpCoords);
+			}
+		}
+
+		this.manyCoords[manyCoordsIdx].push({
+		position: L.latLng(lats[i][0], lons[i][0]),
+		timestamp: lats[i][1]
+		});
+	  
+	  lastLon = lons[i][0];
     }
     this.addDataToMap();
   }
