@@ -1,7 +1,7 @@
 import L from './leaflet/leaflet.js';
 import moment from 'moment';
 
-import appEvents from 'app/core/app_events';
+import { LegacyGraphHoverClearEvent, LegacyGraphHoverEvent } from '@grafana/data';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
@@ -61,21 +61,30 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // Panel events
     this.events.on('panel-initialized', this.onInitialized.bind(this));
-    this.events.on('view-mode-changed', this.onViewModeChanged.bind(this));
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
-    this.events.on('panel-size-changed', this.onPanelSizeChanged.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));
     this.events.on('data-snapshot-load', this.onDataSnapshotLoad.bind(this));
     this.events.on('render', this.onRender.bind(this));
+    this.events.on('refresh', this.onRefresh.bind(this));
 
     // Global events
-    appEvents.on('graph-hover', this.onPanelHover.bind(this));
-    appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
+    this.dashboard.events.on(LegacyGraphHoverEvent.type, this.onPanelHover.bind(this), $scope);
+    this.dashboard.events.on(LegacyGraphHoverClearEvent.type, this.onPanelClear.bind(this), $scope);
+  }
+
+  onRefresh(){
+    log("onRefresh")
+    this.onPanelSizeChanged();
   }
 
   onRender(){
     log("onRender")
+
+    // No specific event for panel size changing anymore
+    // Render is called when the size changes so just call it here
+    this.onPanelSizeChanged();
+
     // Wait until there is at least one GridLayer with fully loaded
     // tiles before calling renderingCompleted
     if (this.leafMap) {
@@ -162,14 +171,6 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     if (this.hoverMarker) {
       this.hoverMarker.removeFrom(this.leafMap);
     }
-  }
-
-  onViewModeChanged(){
-    log("onViewModeChanged");
-    // KLUDGE: When the view mode is changed, panel resize events are not
-    //         emitted even if the panel was resized. Work around this by telling
-    //         the panel it's been resized whenever the view mode changes.
-    this.onPanelSizeChanged();
   }
 
   onPanelSizeChanged() {
