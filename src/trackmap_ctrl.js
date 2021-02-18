@@ -1,7 +1,7 @@
 import L from './leaflet/leaflet.js';
 import moment from 'moment';
 
-import appEvents from 'app/core/app_events';
+import { LegacyGraphHoverClearEvent, LegacyGraphHoverEvent } from '@grafana/data';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
@@ -61,17 +61,19 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // Panel events
     this.events.on('panel-initialized', this.onInitialized.bind(this));
-    this.events.on('view-mode-changed', this.onViewModeChanged.bind(this));
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('panel-teardown', this.onPanelTeardown.bind(this));
-    this.events.on('panel-size-changed', this.onPanelSizeChanged.bind(this));
     this.events.on('data-received', this.onDataReceived.bind(this));
     this.events.on('data-snapshot-load', this.onDataSnapshotLoad.bind(this));
-    this.events.on('render', this.onRender.bind(this));
+    
+    // added as new event
+    this.events.on('refresh', this.onPanelSizeChanged.bind(this));
+    // changed to size changed since on size changed only render is called, not size changed
+    this.events.on('render', this.onPanelSizeChanged.bind(this));
 
     // Global events
-    appEvents.on('graph-hover', this.onPanelHover.bind(this));
-    appEvents.on('graph-hover-clear', this.onPanelClear.bind(this));
+    this.dashboard.events.on(LegacyGraphHoverEvent.type, this.onPanelHover.bind(this), $scope);
+    this.dashboard.events.on(LegacyGraphHoverClearEvent.type, this.onPanelClear.bind(this), $scope);
   }
 
   onRender(){
