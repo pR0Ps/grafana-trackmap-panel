@@ -13,6 +13,23 @@ function log(msg) {
   //console.log(msg);
 }
 
+function getAntimeridianMidpoints(start, end) {
+  // See https://stackoverflow.com/a/65870755/369977
+  if (Math.abs(start.lng - end.lng) <= 180.0){
+    return null;
+  }
+  const start_dist_to_antimeridian = start.lng > 0 ? 180 - start.lng : 180 + start.lng;
+  const end_dist_to_antimeridian = end.lng > 0 ? 180 - end.lng : 180 + end.lng;
+  const lat_difference = Math.abs(start.lat - end.lat);
+  const alpha_angle = Math.atan(lat_difference / (start_dist_to_antimeridian + end_dist_to_antimeridian)) * (180 / Math.PI) * (start.lng > 0 ? 1 : -1);
+  const lat_diff_at_antimeridian = Math.tan(alpha_angle * Math.PI / 180) * start_dist_to_antimeridian;
+  const intersection_lat = start.lat + lat_diff_at_antimeridian;
+  const first_line_end = [intersection_lat, start.lng > 0 ? 180 : -180];
+  const second_line_start = [intersection_lat, end.lng > 0 ? 180 : -180];
+
+  return [L.latLng(first_line_end), L.latLng(second_line_start)];
+}
+
 export class TrackMapCtrl extends MetricsPanelCtrl {
   constructor($scope, $injector) {
     super($scope, $injector);
@@ -52,9 +69,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     this.timeSrv = $injector.get('timeSrv');
     this.coords = [];
+    this.coordSlices = [];
     this.leafMap = null;
     this.layerChanger = null;
-    this.polyline = null;
+    this.polylines = [];
     this.hoverMarker = null;
     this.hoverTarget = null;
     this.setSizePromise = null;
@@ -222,9 +240,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("setupMap");
     // Create the map or get it back in a clean state if it already exists
     if (this.leafMap) {
-      if (this.polyline) {
-        this.polyline.removeFrom(this.leafMap);
-      }
+      this.polylines.forEach(p=>p.removeFrom(this.leafMap));
       this.onPanelClear();
       return;
     }
@@ -302,23 +318,31 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.render();
   }
 
-  // Add the circles and polyline to the map
+  // Add the circles and polyline(s) to the map
   addDataToMap() {
     log("addDataToMap");
-    this.polyline = L.polyline(
-      this.coords.map(x => x.position, this), {
-        color: this.panel.lineColor,
-        weight: 3,
-      }
-    ).addTo(this.leafMap);
 
+    this.polylines.length = 0;
+    for (let i = 0; i < this.coordSlices.length - 1; i++) {
+      const coordSlice = this.coords.slice(this.coordSlices[i], this.coordSlices[i+1])
+      this.polylines.push(
+        L.polyline(
+          coordSlice.map(x => x.position, this), {
+            color: this.panel.lineColor,
+            weight: 3,
+          }
+        ).addTo(this.leafMap)
+      );
+    }
     this.zoomToFit();
   }
 
   zoomToFit(){
     log("zoomToFit");
-    if (this.panel.autoZoom && this.polyline){
-      var bounds = this.polyline.getBounds();
+    if (this.panel.autoZoom && this.polylines.length>0){
+      var bounds = this.polylines[0].getBounds();
+      this.polylines.forEach(p => bounds.extend(p.getBounds()));
+
       if (bounds.isValid()){
         this.leafMap.fitBounds(bounds);
       }
@@ -331,11 +355,11 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   refreshColors() {
     log("refreshColors");
-    if (this.polyline) {
-      this.polyline.setStyle({
+    this.polylines.forEach(p => {
+      p.setStyle({
         color: this.panel.lineColor
-      });
-    }
+      })
+    });
     if (this.hoverMarker){
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
@@ -358,6 +382,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Asumption is that there are an equal number of properly matched timestamps
     // TODO: proper joining by timestamp?
     this.coords.length = 0;
+    this.coordSlices.length = 0;
+    this.coordSlices.push(0)
     const lats = data[0].datapoints;
     const lons = data[1].datapoints;
     for (let i = 0; i < lats.length; i++) {
@@ -366,12 +392,34 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
           lats[i][1] !== lons[i][1]) {
         continue;
       }
+      const pos = L.latLng(lats[i][0], lons[i][0])
+
+      if (this.coords.length > 0){
+        // Deal with the line between last point and this one crossing the antimeridian:
+        // Draw a line from the last point to the antimeridian and another from the anitimeridian
+        // to the current point.
+        const midpoints = getAntimeridianMidpoints(this.coords[this.coords.length-1].position, pos);
+        if (midpoints != null){
+          // Crossed the antimeridian, add the points to the coords array
+          const lastTime = this.coords[this.coords.length-1].timestamp
+          midpoints.forEach(p => {
+            this.coords.push({
+              position: p,
+              timestamp: lastTime + ((lats[i][1] - lastTime)/2)
+            })
+          });
+          // Note that we need to start drawing a new line between the added points
+          this.coordSlices.push(this.coords.length - 1)
+        }
+      }
 
       this.coords.push({
-        position: L.latLng(lats[i][0], lons[i][0]),
+        position: pos,
         timestamp: lats[i][1]
       });
+
     }
+    this.coordSlices.push(this.coords.length)
     this.addDataToMap();
   }
 
