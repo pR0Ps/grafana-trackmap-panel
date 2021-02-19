@@ -4,7 +4,13 @@
     <div class="gf-form">
       <label class="gf-form-label width-9">Max data points</label>
       <span class="max-width-10">
-        <input type="number" class="gf-form-input" ng-model="ctrl.panel.maxDataPoints" ng-change="ctrl.refresh()"/>
+        <input type="number" class="gf-form-input" ng-model="ctrl.panel.maxDataPoints" ng-model-options="{ debounce: 3000 }" ng-change="ctrl.refreshPolylines()"/>
+      </span>
+    </div>
+    <div class="gf-form">
+      <label class="gf-form-label width-16">Max data point time delta <info-popover>In seconds, 0 to disable. Start a new track if the time difference between a data point and previous data point is greater than the value.</info-popover></label>
+      <span class="max-width-10">
+        <input type="number" class="gf-form-input" ng-model="ctrl.panel.maxDataPointDelta" ng-model-options="{ debounce: 3000 }" ng-change="ctrl.refreshPolylines()"/>
       </span>
     </div>
     <gf-form-switch class="gf-form" label="Autozoom" label-class="width-11" tooltip="Automatically zoom the map to fit the data?"

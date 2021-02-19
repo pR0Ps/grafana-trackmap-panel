@@ -27,6 +27,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       showLayerChanger: true,
       lineColor: 'red',
       pointColor: 'royalblue',
+      maxDataPointDelta: 0,
     });
 
     // Save layers globally in order to use them in options
@@ -54,7 +55,7 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.coords = [];
     this.leafMap = null;
     this.layerChanger = null;
-    this.polyline = null;
+    this.polylines = [];
     this.hoverMarker = null;
     this.hoverTarget = null;
     this.setSizePromise = null;
@@ -222,8 +223,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     log("setupMap");
     // Create the map or get it back in a clean state if it already exists
     if (this.leafMap) {
-      if (this.polyline) {
-        this.polyline.removeFrom(this.leafMap);
+      if (this.polylines.length > 0){
+        this.polylines.forEach(polyline => polyline.removeFrom(this.leafMap));
+        this.polylines = [];
       }
       this.onPanelClear();
       return;
@@ -304,21 +306,41 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   // Add the circles and polyline to the map
   addDataToMap() {
+    const coords = [[]];
+
+    this.coords.forEach((coord, index) => {
+      if (index !== 0 && this.panel.maxDataPointDelta !== 0){
+        const prevTimestamp = this.coords[index - 1].timestamp;
+
+        if (coord.timestamp - prevTimestamp > this.panel.maxDataPointDelta * 1000){
+          coords.push([]); // Start a new polyline
+        }
+      }
+
+      coords[coords.length - 1].push(coord.position);
+    });
+
     log("addDataToMap");
-    this.polyline = L.polyline(
-      this.coords.map(x => x.position, this), {
+
+    coords.forEach(polyline => {
+      this.polylines.push(L.polyline(polyline, {
         color: this.panel.lineColor,
         weight: 3,
-      }
-    ).addTo(this.leafMap);
+      }).addTo(this.leafMap));
+    });
 
     this.zoomToFit();
   }
 
   zoomToFit(){
     log("zoomToFit");
-    if (this.panel.autoZoom && this.polyline){
-      var bounds = this.polyline.getBounds();
+    if (this.panel.autoZoom && this.polylines.length > 0){
+      var bounds = this.polylines[0].getBounds();
+
+      for (var i = 1; i < this.polylines.length; i++){
+        bounds = bounds.extend(this.polylines[i].getBounds());
+      }
+
       if (bounds.isValid()){
         this.leafMap.fitBounds(bounds);
       }
@@ -329,13 +351,16 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.render();
   }
 
+  refreshPolylines() {
+    this.setupMap();
+    this.addDataToMap();
+  }
+
   refreshColors() {
     log("refreshColors");
-    if (this.polyline) {
-      this.polyline.setStyle({
-        color: this.panel.lineColor
-      });
-    }
+    this.polylines.forEach(polyline => {
+      polyline.setStyle({ color: this.panel.lineColor });
+    });
     if (this.hoverMarker){
       this.hoverMarker.setStyle({
         fillColor: this.panel.pointColor,
