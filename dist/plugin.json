@@ -33,12 +33,12 @@
       {"name": "Zoom in by selecting a range of points", "path": "img/topo-boxselect.jpg"},
       {"name": "Chose what map to display the data on", "path": "img/satellite-picker.jpg"}
     ],
-    "version": "2.1.0",
-    "updated": "2020-06-09"
+    "version": "2.1.1",
+    "updated": "2021-02-19"
   },
 
   "dependencies": {
-    "grafanaVersion": "5.x.x",
+    "grafanaVersion": "7.x.x",
     "plugins": [ ]
   }
 }
