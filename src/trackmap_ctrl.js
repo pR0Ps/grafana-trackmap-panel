@@ -44,6 +44,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
       showLayerChanger: true,
       lineColor: 'red',
       pointColor: 'royalblue',
+      pointOutlineColor: 'white',
+      enableLastPoint: true,
+      lastPointColor: 'lime',
+      showAsPoints: false,
     });
 
     // Save layers globally in order to use them in options
@@ -73,6 +77,8 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.leafMap = null;
     this.layerChanger = null;
     this.polylines = [];
+    this.marker = [];
+    this.lastPoint = null;
     this.hoverMarker = null;
     this.hoverTarget = null;
     this.setSizePromise = null;
@@ -241,6 +247,18 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Create the map or get it back in a clean state if it already exists
     if (this.leafMap) {
       this.polylines.forEach(p=>p.removeFrom(this.leafMap));
+      this.polylines = [];
+
+      if (this.marker.length > 0) {
+        this.marker.forEach(point => {
+          point.removeFrom(this.leafMap);
+        });
+        this.marker = [];
+      }
+      if (this.lastPoint) {
+        this.lastPoint.removeFrom(this.leafMap);
+        this.lastPoint = null;
+      }
       this.onPanelClear();
       return;
     }
@@ -265,10 +283,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
     // Hover marker
     this.hoverMarker = L.circleMarker(L.latLng(0, 0), {
-      color: 'white',
+      color: this.panel.pointOutlineColor,
       fillColor: this.panel.pointColor,
       fillOpacity: 1,
-      weight: 2,
+      weight: 3,
       radius: 7
     });
 
@@ -318,36 +336,88 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     this.render();
   }
 
-  // Add the circles and polyline(s) to the map
+  // Add the circles, polyline(s) and last point to the map
   addDataToMap() {
     log("addDataToMap");
-
-    this.polylines.length = 0;
-    for (let i = 0; i < this.coordSlices.length - 1; i++) {
-      const coordSlice = this.coords.slice(this.coordSlices[i], this.coordSlices[i+1])
-      this.polylines.push(
-        L.polyline(
-          coordSlice.map(x => x.position, this), {
-            color: this.panel.lineColor,
+    if (this.panel.showAsPoints) {
+      for (let i = 0; i < this.coords.length; i++) {
+        let point = L.circleMarker(
+          this.coords[i].position, {
+            color: this.panel.pointOutlineColor,
+            fillColor: this.panel.lineColor,
+            fillOpacity: i / this.coords.length,
             weight: 3,
+            radius: 7,
           }
-        ).addTo(this.leafMap)
-      );
+        ).addTo(this.leafMap);
+        this.marker.push(point);
+      }
+    } else {
+      this.polylines.length = 0;
+      for (let i = 0; i < this.coordSlices.length - 1; i++) {
+        const coordSlice = this.coords.slice(this.coordSlices[i], this.coordSlices[i+1])
+        this.polylines.push(
+          L.polyline(
+            coordSlice.map(x => x.position, this), {
+              color: this.panel.lineColor,
+              weight: 3,
+            }
+          ).addTo(this.leafMap)
+        );
+      }
     }
+
+    this.updateLastPoint();
+
     this.zoomToFit();
   }
 
-  zoomToFit(){
-    log("zoomToFit");
-    if (this.panel.autoZoom && this.polylines.length>0){
-      var bounds = this.polylines[0].getBounds();
-      this.polylines.forEach(p => bounds.extend(p.getBounds()));
+  updateLastPoint() {
+    if (this.panel.enableLastPoint) {
+      this.lastPoint = L.circleMarker(
+        this.coords[this.coords.length - 1].position, {
+          color: this.panel.pointOutlineColor,
+          fillColor: this.panel.lastPointColor,
+          fillOpacity: 1,
+          weight: 3,
+          radius: 7,
+      }).addTo(this.leafMap);
+    } else if (this.lastPoint != null) {
+      this.lastPoint.removeFrom(this.leafMap);
+      this.lastPoint = null;
+    }
+  }
 
-      if (bounds.isValid()){
-        this.leafMap.fitBounds(bounds);
-      }
-      else {
-        this.leafMap.setView([0, 0], 1);
+  changeViewType() {
+    if (this.panel.showAsPoints) {
+      this.polyline.removeFrom(this.leafMap);
+      this.polyline = null;
+    } else {
+      this.marker.forEach(point => {
+        point.removeFrom(this.leafMap)
+      });
+      this.marker = [];
+    }
+
+    this.addDataToMap();
+  }
+
+  zoomToFit() {
+    log("zoomToFit");
+    if (this.panel.autoZoom) {
+      if (this.polylines.length>0) {
+        this.leafMap.fitBounds(this.polyline.getBounds());
+        var bounds = this.polylines[0].getBounds();                                                                                                                                                                                           
+        this.polylines.forEach(p => bounds.extend(p.getBounds()));                                                                                                                                                                            
+                                                                                                                                                                                                                                              
+        if (bounds.isValid()){                                                                                                                                                                                                                
+          this.leafMap.fitBounds(bounds);                                                                                                                                                                                                     
+        }                                                                                                                                                                                                                                     
+        else {                                                                                                                                                                                                                                
+          this.leafMap.setView([0, 0], 1);
+        }
+      } else if (this.marker.length > 0) {
+        this.leafMap.fitBounds(L.featureGroup(this.marker).getBounds());
       }
     }
     this.render();
@@ -360,8 +430,24 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         color: this.panel.lineColor
       })
     });
-    if (this.hoverMarker){
+
+    if (this.marker.length > 0) {
+      this.marker.forEach(point => {
+        point.setStyle({
+          color: this.panel.pointOutlineColor,
+          fillColor: this.panel.lineColor,
+        });
+      });
+    }
+    if (this.lastPoint) {
+      this.lastPoint.setStyle({
+        color: this.panel.pointOutlineColor,
+        fillColor: this.panel.lastPointColor,
+      });
+    }
+    if (this.hoverMarker) {
       this.hoverMarker.setStyle({
+        color: this.panel.pointOutlineColor,
         fillColor: this.panel.pointColor,
       });
     }

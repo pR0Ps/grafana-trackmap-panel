@@ -11,6 +11,8 @@
                     checked="ctrl.panel.autoZoom" on-change="ctrl.zoomToFit()"/>
     <gf-form-switch class="gf-form" label="Zoom with scroll wheel" label-class="width-11"
                     checked="ctrl.panel.scrollWheelZoom" on-change="ctrl.applyScrollZoom()"/>
+    <gf-form-switch class="gf-form" label="Show as points" label-class="width-11"
+                    checked="ctrl.panel.showAsPoints" on-change="ctrl.changeViewType()"/>
     <div class="gf-form">
       <label class="gf-form-label width-9">Default map style</label>
       <div class="gf-form-select-wrapper max-width-11">
@@ -24,15 +26,32 @@
   <div class="section gf-form-group">
     <h5 class="section-heading">Colors</h5>
     <div class="gf-form">
-      <label class="gf-form-label width-9">Line Color</label>
+      <label class="gf-form-label width-9">Line/Point Color</label>
       <span class="max-width-10">
         <spectrum-picker class="gf-form-input" ng-model="ctrl.panel.lineColor" ng-change="ctrl.refreshColors()"/>
       </span>
     </div>
     <div class="gf-form">
-      <label class="gf-form-label width-9">Point Color</label>
+      <label class="gf-form-label width-9">Hover Point Color</label>
       <span class="max-width-10">
         <spectrum-picker class="gf-form-input" ng-model="ctrl.panel.pointColor" ng-change="ctrl.refreshColors()"/>
+      </span>
+    </div>
+    <div class="gf-form">
+      <label class="gf-form-label width-9">Point Outline Color</label>
+      <span class="max-width-10">
+        <spectrum-picker class="gf-form-input" ng-model="ctrl.panel.pointOutlineColor" ng-change="ctrl.refreshColors()"/>
+      </span>
+    </div>
+  </div>
+  <div class="section gf-form-group">
+    <h5 class="section-heading">Last point highlighting</h5>
+    <gf-form-switch class="gf-form" label="Enable" label-class="width-7"
+                    checked="ctrl.panel.enableLastPoint" on-change="ctrl.updateLastPoint()" />
+    <div class="gf-form">
+      <label class="gf-form-label width-9">Point Color</label>
+      <span class="max-width-10">
+        <spectrum-picker class="gf-form-input" ng-model="ctrl.panel.lastPointColor" ng-change="ctrl.refreshColors()"/>
       </span>
     </div>
   </div>
