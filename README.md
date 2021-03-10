@@ -18,11 +18,18 @@ Screenshots
 
 Installation
 ------------
-To use the latest version of this plugin, clone it into Grafana's plugin directory (you can find
-this path in Grafana's logs when it starts up) and run `git checkout releases`. You should now be
-able to select the "TrackMap" panel when adding a new panel to a Grafana dashboard. To use an
-earlier version use git to checkout an earlier commit on the `releases` branch.
+The most current version can be installed via Grafana's plugin repository at
+<https://grafana.com/grafana/plugins/pr0ps-trackmap-panel>
 
+Releases are also provided as zip files at
+<https://github.com/pR0Ps/grafana-trackmap-panel/releases>.  See
+<https://grafana.com/docs/grafana/latest/plugins/installation> for help with installing them.
+
+Once installed you should be able to select the "TrackMap" panel when adding a new panel to a
+Grafana dashboard.
+
+Building from source
+--------------------
 To use an unreleased version of the plugin or do development, you will need to manually build it
 from source.
 
