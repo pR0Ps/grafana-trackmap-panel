@@ -1,7 +1,7 @@
 import L from './leaflet/leaflet.js';
 import moment from 'moment';
 
-import { LegacyGraphHoverClearEvent, LegacyGraphHoverEvent } from '@grafana/data';
+import { DataHoverClearEvent, DataHoverEvent, LegacyGraphHoverClearEvent, LegacyGraphHoverEvent } from '@grafana/data';
 import {MetricsPanelCtrl} from 'app/plugins/sdk';
 
 import './leaflet/leaflet.css!';
@@ -89,6 +89,9 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Global events
     this.dashboard.events.on(LegacyGraphHoverEvent.type, this.onPanelHover.bind(this), $scope);
     this.dashboard.events.on(LegacyGraphHoverClearEvent.type, this.onPanelClear.bind(this), $scope);
+
+    this.dashboard.events.on(DataHoverEvent.type, this.onPanelHover.bind(this), $scope);
+    this.dashboard.events.on(DataHoverClearEvent.type, this.onPanelClear.bind(this), $scope);
   }
 
   onRefresh(){
@@ -136,12 +139,20 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
 
   onPanelHover(evt) {
     log("onPanelHover");
+
+    let target = 0;
+    // Check if event has position (Legacy Hover event) or point (Data Hover event)
+    if (evt.hasOwnProperty('pos')) {
+      target = Math.floor(evt.pos.x);
+    } else {
+      target = Math.floor(evt.point.time);
+    }
+
     if (this.coords.length === 0) {
       return;
     }
 
     // check if we are already showing the correct hoverMarker
-    let target = Math.floor(evt.pos.x);
     if (this.hoverTarget && this.hoverTarget === target) {
       return;
     }
