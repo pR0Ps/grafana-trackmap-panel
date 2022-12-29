@@ -143,8 +143,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     let target = 0;
     // Check if event has position (Legacy Hover event) or point (Data Hover event)
     if (evt.hasOwnProperty('pos')) {
+      if (evt.pos?.x == null) {
+        return;
+      }
       target = Math.floor(evt.pos.x);
     } else {
+      if (evt.point?.time == null) {
+        return
+      }
       target = Math.floor(evt.point.time);
     }
 
