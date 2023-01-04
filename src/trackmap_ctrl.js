@@ -64,6 +64,12 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
           subdomains: 'abcd',
           maxZoom: 20,
         })
+      }),
+      'Eniro Seamap': L.tileLayer('https://{s}.eniro.com/geowebcache/service/tms1.0.0/nautical/{z}/{x}/{y}.png', {
+        subdomains: ['map01', 'map02', 'map03', 'map04'],
+        attribution: '&copy; Kort & Matrikelstyrelsen',
+        tms: true,
+        maxZoom: 17,
       })
     };
 
