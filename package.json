@@ -4,7 +4,8 @@
   "description": "A plugin for Grafana that visualizes GPS points as a line on an interactive map.",
   "main": "src/module.js",
   "scripts": {
-    "build": "grunt"
+    "build": "grunt",
+    "sign": "grafana-toolkit plugin:sign"
   },
   "author": {
     "name": "Carey Metcalfe",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "7.5.5",
+    "@grafana/toolkit": "^9.3.2",
     "grunt": "^1.3.0",
     "grunt-babel": "^8.0.0",
     "grunt-contrib-clean": "^2.0.0",

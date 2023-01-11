@@ -16,8 +16,8 @@ module.exports = (grunt) => {
         src: ['**/*', '!**/*.js', '!**/*.scss'],
         dest: 'dist/'
       },
-      readme: {
-        src: ['README.md'],
+      documentation: {
+        src: ['README.md', 'LICENCE'],
         dest: 'dist/',
         options: {
           // Rewrite the image links to pull from the plugin's image storage when served by Grafana
