@@ -95,9 +95,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
     // Global events
     this.dashboard.events.on(LegacyGraphHoverEvent.type, this.onPanelHover.bind(this), $scope);
     this.dashboard.events.on(LegacyGraphHoverClearEvent.type, this.onPanelClear.bind(this), $scope);
-
-    this.dashboard.events.on(DataHoverEvent.type, this.onPanelHover.bind(this), $scope);
-    this.dashboard.events.on(DataHoverClearEvent.type, this.onPanelClear.bind(this), $scope);
+    try {
+      this.dashboard.events.on(DataHoverEvent.type, this.onPanelHover.bind(this), $scope);
+      this.dashboard.events.on(DataHoverClearEvent.type, this.onPanelClear.bind(this), $scope);
+    } catch(err){ /* expected for Grafana v7.x.x */ }
   }
 
   onRefresh(){
