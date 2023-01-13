@@ -26,7 +26,7 @@
     "links": [
       {"name": "Project site", "url": "https://github.com/pR0Ps/grafana-trackmap-panel"},
       {"name": "Project Readme", "url": "https://github.com/pR0Ps/grafana-trackmap-panel/blob/master/README.md"},
-      {"name": "Project license", "url": "https://github.com/pR0Ps/grafana-trackmap-panel/blob/master/LICENSE"}
+      {"name": "Project license", "url": "https://github.com/pR0Ps/grafana-trackmap-panel/blob/master/LICENCE"}
     ],
     "screenshots": [
       {"name": "Show current selection as a dot on the map", "path": "img/topo-crosshair.jpg"},
@@ -38,7 +38,7 @@
   },
 
   "dependencies": {
-    "grafanaDependency": ">=7.0.0",
+    "grafanaDependency": ">=7.5.6",
     "plugins": [ ]
   }
 }
