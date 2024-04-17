@@ -52,6 +52,10 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19
       }),
+      'CyclOSM': L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; <a href="/copyright">OpenStreetMap contributors</a>. Tiles style by <a href="https://www.cyclosm.org">CyclOSM</a> hosted by <a href="https://openstreetmap.fr/">OpenStreetMap France</a>',
+        maxZoom: 20,
+      }),
       'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
         maxZoom: 17
@@ -65,12 +69,14 @@ export class TrackMapCtrl extends MetricsPanelCtrl {
           maxZoom: 20,
         })
       }),
-      'Eniro Seamap': L.tileLayer('https://{s}.eniro.com/geowebcache/service/tms1.0.0/nautical/{z}/{x}/{y}.png', {
-        subdomains: ['map01', 'map02', 'map03', 'map04'],
-        attribution: '&copy; Kort & Matrikelstyrelsen',
-        tms: true,
-        maxZoom: 17,
-      })
+      'OpenSeaMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+        forcedOverlay: L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
+          attribution: 'Sea marks from <a href="https://map.openseamap.org">OpenSeaMap</a>',
+          maxZoom: 18,
+        })
+      }),
     };
 
     this.timeSrv = $injector.get('timeSrv');
