@@ -1,6 +1,11 @@
 import { PanelProps } from '@grafana/data';
 import { LatLng, LatLngBounds, LeafletEvent } from 'leaflet';
 
+export interface CustomLayerOptions {
+  enabled: boolean;
+  template: string;
+  attribution: string;
+}
 export interface TrackMapOptions {
   autoZoom: boolean;
   scrollWheelZoom: boolean;
@@ -8,6 +13,7 @@ export interface TrackMapOptions {
   showLayerChanger: boolean;
   lineColor: string;
   pointColor: string;
+  customLayer: CustomLayerOptions;
 }
 
 export interface TrackMapProps extends PanelProps<TrackMapOptions> {}

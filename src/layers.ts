@@ -29,4 +29,14 @@ export const LAYERS: { [key: string]: TileLayer | LayerGroup } = {
       }
     ),
   ]),
+  OpenSeaMap: new LayerGroup([
+    new TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxNativeZoom: 19,
+    }),
+    new TileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
+      attribution: 'Sea marks from <a href="https://map.openseamap.org">OpenSeaMap</a>',
+      maxNativeZoom: 18,
+    }),
+  ]),
 };

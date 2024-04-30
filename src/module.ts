@@ -45,5 +45,30 @@ export const plugin = new PanelPlugin<TrackMapOptions>(TrackMapPanel).setPanelOp
       description: 'The color to use to render the individual points',
       category: ['Colors'],
       defaultValue: 'royalblue',
+    })
+    .addNestedOptions({
+      path: 'customLayer',
+      category: ['Custom tile layer'],
+      build(subbuilder) {
+        subbuilder
+          .addBooleanSwitch({
+            path: 'enabled',
+            name: 'Custom layer',
+            description: 'Use a custom tile layer? This will disable all other layers',
+            defaultValue: false,
+          })
+          .addTextInput({
+            path: 'template',
+            name: 'URL template',
+            description: 'Must include {x}, {y} or {-y}, and {z} placeholders',
+            defaultValue: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          })
+          .addTextInput({
+            name: 'attribution',
+            path: 'attribution',
+            description: 'Attribution text for the tiles',
+            defaultValue: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          });
+      },
     });
 });

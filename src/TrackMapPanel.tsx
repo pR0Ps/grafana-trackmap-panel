@@ -8,10 +8,17 @@ import {
   PanelData,
 } from '@grafana/data';
 import { Subscription } from 'rxjs';
-import { CircleMarker, Control, LatLng, Map as LeafMap, LeafletEventHandlerFn, Polyline } from 'leaflet';
+import { CircleMarker, Control, LatLng, Map as LeafMap, LeafletEventHandlerFn, Polyline, TileLayer } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import { BoxZoomEndEvent, InputRows, Point, TrackMapProps, setDashboardTimeRangeFunction } from './types';
+import {
+  BoxZoomEndEvent,
+  InputRows,
+  CustomLayerOptions,
+  Point,
+  TrackMapProps,
+  setDashboardTimeRangeFunction,
+} from './types';
 import { LAYERS } from './layers';
 
 function log(...args: any) {
@@ -198,15 +205,23 @@ class TrackMapState {
     }
   }
 
-  setDefaultLayer(layerName: string) {
-    log('setDefaultLayer', layerName);
+  setDefaultLayer(layerName: string, customLayer: CustomLayerOptions) {
+    log('setDefaultLayer', layerName, customLayer);
     this.removeLines();
 
-    // Remove all layers and add the new default
+    // Remove all layers and add the new one
     this.leafMap.eachLayer((layer) => {
       layer.removeFrom(this.leafMap);
     });
-    this.leafMap.addLayer(LAYERS[layerName]);
+    if (customLayer.enabled) {
+      this.leafMap.addLayer(
+        new TileLayer(customLayer.template, {
+          attribution: customLayer.attribution,
+        })
+      );
+    } else {
+      this.leafMap.addLayer(LAYERS[layerName]);
+    }
 
     this.addLinesToMap();
   }
@@ -474,8 +489,8 @@ export const TrackMapPanel: React.FC<TrackMapProps> = ({
   }, [options.scrollWheelZoom]);
 
   useEffect(() => {
-    mapState.current?.setDefaultLayer(options.defaultLayer);
-  }, [options.defaultLayer]);
+    mapState.current?.setDefaultLayer(options.defaultLayer, options.customLayer);
+  }, [options.defaultLayer, options.customLayer]);
 
   useEffect(() => {
     mapState.current?.setShowLayerChanger(options.showLayerChanger);
