@@ -1,6 +1,8 @@
 TrackMap Panel for Grafana
 ==========================
-[![Marketplace](https://img.shields.io/badge/dynamic/json?logo=grafana&query=$.version&url=https://grafana.com/api/plugins/pr0ps-trackmap-panel&label=Marketplace&prefix=v&color=F47A20) ![Downloads](https://img.shields.io/badge/dynamic/json?logo=grafana&query=$.grafanaDependency&url=https://grafana.com/api/plugins/pr0ps-trackmap-panel&label=Grafana&color=F47A20) ![Downloads](https://img.shields.io/badge/dynamic/json?logo=grafana&query=$.downloads&url=https://grafana.com/api/plugins/pr0ps-trackmap-panel&label=Downloads)](https://grafana.com/grafana/plugins/pr0ps-trackmap-panel/)
+[![Marketplace](https://img.shields.io/badge/dynamic/json?logo=grafana&query=$.version&url=https://grafana.com/api/plugins/pr0ps-trackmap-panel&label=Marketplace&prefix=v&color=F47A20)](https://grafana.com/grafana/plugins/pr0ps-trackmap-panel/)
+![Required grafana version](https://img.shields.io/badge/dynamic/json?logo=grafana&query=$.grafanaDependency&url=https://grafana.com/api/plugins/pr0ps-trackmap-panel&label=Grafana&color=F47A20)
+![Downloads](https://img.shields.io/badge/dynamic/json?logo=grafana&query=$.downloads&url=https://grafana.com/api/plugins/pr0ps-trackmap-panel&label=Downloads)
 
 A panel for [Grafana](https://grafana.com/) that visualizes GPS points as a line on an interactive map.
 
