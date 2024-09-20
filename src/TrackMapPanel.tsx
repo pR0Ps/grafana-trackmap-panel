@@ -8,7 +8,7 @@ import {
   PanelData,
 } from '@grafana/data';
 import { Subscription } from 'rxjs';
-import { CircleMarker, Control, LatLng, Map as LeafMap, LeafletEventHandlerFn, Polyline, TileLayer } from 'leaflet';
+import { CircleMarker, Control, LatLng, Map as LeafMap, LeafletEventHandlerFn, Polyline, TileLayer, LayerGroup } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 import {
@@ -19,7 +19,7 @@ import {
   TrackMapProps,
   setDashboardTimeRangeFunction,
 } from './types';
-import { LAYERS } from './layers';
+import { getLayers } from './layers';
 
 function log(...args: any) {
   // uncomment for debugging
@@ -73,6 +73,7 @@ class TrackMapState {
   lineColor: string | undefined;
   autoZoom: boolean;
   setDashboardTimeRange: setDashboardTimeRangeFunction;
+  layers: { [key: string]: TileLayer | LayerGroup };
 
   constructor(containerId: string, setDashboardTimeRange: setDashboardTimeRangeFunction) {
     log('panelInit', containerId);
@@ -92,8 +93,9 @@ class TrackMapState {
     });
     this.hoverTarget = null;
 
+    this.layers = getLayers();
     // Create the layer changer
-    this.layerChanger = new Control.Layers(LAYERS);
+    this.layerChanger = new Control.Layers(this.layers);
 
     // Create the map and set up events
     this.leafMap = new LeafMap(containerId, {
@@ -220,7 +222,8 @@ class TrackMapState {
         })
       );
     } else {
-      this.leafMap.addLayer(LAYERS[layerName]);
+      // Use the cloned layers instead of the global LAYERS object
+      this.leafMap.addLayer(this.layers[layerName]);
     }
 
     this.addLinesToMap();
