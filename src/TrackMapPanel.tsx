@@ -8,7 +8,7 @@ import {
   PanelData,
 } from '@grafana/data';
 import { Subscription } from 'rxjs';
-import { CircleMarker, Control, LatLng, Map as LeafMap, LeafletEventHandlerFn, Polyline, TileLayer } from 'leaflet';
+import { CircleMarker, Control, LatLng, Map as LeafMap, LeafletEventHandlerFn, Polyline, TileLayer, LayerGroup } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 import {
@@ -19,7 +19,7 @@ import {
   TrackMapProps,
   setDashboardTimeRangeFunction,
 } from './types';
-import { LAYERS } from './layers';
+import { getLayers } from './layers';
 
 function log(...args: any) {
   // uncomment for debugging
@@ -64,6 +64,7 @@ function getAntimeridianMidpoints(start: LatLng, end: LatLng) {
 
 class TrackMapState {
   leafMap: LeafMap;
+  layers: { [key: string]: TileLayer | LayerGroup };
   layerChanger: Control.Layers;
   coords: Point[];
   coordSlices: number[];
@@ -92,8 +93,9 @@ class TrackMapState {
     });
     this.hoverTarget = null;
 
-    // Create the layer changer
-    this.layerChanger = new Control.Layers(LAYERS);
+    // Create the layers and layer changer
+    this.layers = getLayers();
+    this.layerChanger = new Control.Layers(this.layers);
 
     // Create the map and set up events
     this.leafMap = new LeafMap(containerId, {
@@ -220,7 +222,7 @@ class TrackMapState {
         })
       );
     } else {
-      this.leafMap.addLayer(LAYERS[layerName]);
+      this.leafMap.addLayer(this.layers[layerName]);
     }
 
     this.addLinesToMap();

@@ -1,7 +1,7 @@
 import { PanelPlugin } from '@grafana/data';
 import { TrackMapOptions } from './types';
 import { TrackMapPanel } from './TrackMapPanel';
-import { LAYERS } from './layers';
+import { LAYER_NAMES } from './layers';
 
 export const plugin = new PanelPlugin<TrackMapOptions>(TrackMapPanel).setPanelOptions((builder) => {
   return builder
@@ -23,7 +23,7 @@ export const plugin = new PanelPlugin<TrackMapOptions>(TrackMapPanel).setPanelOp
       description: 'The map style to use by default',
       defaultValue: 'OpenStreetMap',
       settings: {
-        options: Object.keys(LAYERS).map((k) => ({ value: k, label: k })),
+        options: LAYER_NAMES.map((k) => ({ value: k, label: k })),
       },
     })
     .addBooleanSwitch({
