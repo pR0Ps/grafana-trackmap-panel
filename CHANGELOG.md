@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.1
+- Fix issues rendering multiple maps (@nsass24)
+
 ## 3.0.0
 - Rewrite in React
 - Add option to provide a custom tile URL template
