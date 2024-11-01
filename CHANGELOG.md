@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.2
+- Fix project metadata (no functional changes)
+
 ## 3.0.1
 - Fix issues rendering multiple maps (@nsass24)
 
