@@ -6,6 +6,9 @@
 ## 3.0.0
 - Rewrite in React
 - Add option to provide a custom tile URL template
+- Breaking changes:
+  - Replaced Eniro Seamap with OpenSeaMap
+  - All options will be reset to default
 
 ## 2.1.4
 - Fix broken license link and update required Grafana version
